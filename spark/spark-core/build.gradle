@@ -1,0 +1,15 @@
+dependencies {
+    api 'com.axin.tool:axin-tool-core'
+    api 'com.axin.tool:axin-tool-http'
+    api 'com.axin.tool:axin-tool-crypto'
+
+    api 'org.springframework:spring-context'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

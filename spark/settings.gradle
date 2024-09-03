@@ -1,0 +1,4 @@
+rootProject.name = 'spark'
+include 'spark-core'
+include 'spark-service'
+

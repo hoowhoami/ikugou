@@ -1,0 +1,138 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-public/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-releases/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-thirdparty/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        jcenter()
+    }
+    dependencies {
+        classpath(
+                'org.springframework.boot:spring-boot-gradle-plugin:3.3.3',
+                'com.axin.buildplugin:ssh-gradle-plugin:1.1.5'
+        )
+    }
+}
+
+ext {
+    profile = 'prod'
+    revision = '1.0.0'
+    sshRemotePath = "/home/spark/app"
+    buildName = [
+            sparkService: 'spark-service',
+    ]
+}
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'com.axin.buildplugin.ssh.gradle'
+    group = 'org.swordsmen.spark'
+    version = '1.0.0'
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+
+    ssh {
+        host = '47.121.197.101'
+        username = 'root'
+        password = 'hjxUhVRZBbDdmT0Fekho'
+        remotePath = "$sshRemotePath".toString()
+    }
+
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-public/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-releases/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        maven {
+            url "http://nexus.devops.axinfu.com/repository/maven-thirdparty/"
+            allowInsecureProtocol(true)
+            credentials {
+                username = 'jiangliangtong'
+                password = 'abcde_1234'
+            }
+        }
+        jcenter()
+    }
+
+    dependencyManagement {
+        dependencies {
+            imports {
+                mavenBom 'com.axin.tool:axin-tool-dependencies:2.2.1'
+                mavenBom 'com.fasterxml.jackson:jackson-bom:2.17.1'
+            }
+            dependency 'org.projectlombok:lombok:1.18.32'
+            dependency 'org.redisson:redisson-spring-boot-starter:3.32.0'
+            dependency 'com.corundumstudio.socketio:netty-socketio:2.0.9'
+            dependency 'com.baomidou:mybatis-plus-boot-starter:3.5.7'
+            dependency 'com.mysql:mysql-connector-j:9.0.0'
+            dependency 'org.mybatis:mybatis-spring:3.0.3'
+            dependency 'com.auth0:java-jwt:4.4.0'
+        }
+    }
+
+    dependencies {
+
+        annotationProcessor 'org.projectlombok:lombok'
+        compileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+        testCompileOnly 'org.projectlombok:lombok'
+
+        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//        compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    tasks.named('bootJar') {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+}
