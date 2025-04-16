@@ -1,0 +1,17 @@
+dependencies {
+    implementation project(':kugou-core')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
+
+ssh {
+    localKey = "${rootProject.buildName.kugouApi}-${version}.jar"
+    preCommands = [
+            "cd $rootProject.sshRemotePath",
+            "sudo rm -fr ${rootProject.buildName.kugouApi}-${version}.jar"
+    ]
+    postCommands = [
+            "cd $sshRemotePath".toString(),
+            "docker-compose restart ${rootProject.buildName.kugouApi}"
+    ]
+}

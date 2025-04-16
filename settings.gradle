@@ -1,0 +1,4 @@
+rootProject.name = 'kugou-music-api'
+include 'kugou-core'
+include 'kugou-api'
+

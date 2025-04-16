@@ -29,7 +29,7 @@ buildscript {
     }
     dependencies {
         classpath(
-                'org.springframework.boot:spring-boot-gradle-plugin:3.3.3',
+                'org.springframework.boot:spring-boot-gradle-plugin:3.4.4',
                 'com.axin.buildplugin:ssh-gradle-plugin:1.1.5'
         )
     }
@@ -38,9 +38,9 @@ buildscript {
 ext {
     profile = 'prod'
     revision = '1.0.0'
-    sshRemotePath = "/home/spark/app"
+    sshRemotePath = "/home/kugou-music-api/app"
     buildName = [
-            sparkService: 'spark-service',
+            kugouApi: 'kugou-api',
     ]
 }
 
@@ -120,7 +120,8 @@ subprojects {
 
         annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//        compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+        compileOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+        runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     }
 
     tasks.withType(JavaCompile).configureEach {

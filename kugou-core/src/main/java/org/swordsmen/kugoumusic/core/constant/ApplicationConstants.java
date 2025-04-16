@@ -1,4 +1,4 @@
-package org.swordsmen.spark.core.constant;
+package org.swordsmen.kugoumusic.core.constant;
 
 /**
  * @author JLT

@@ -1,11 +1,11 @@
-package org.swordsmen.spark.core.util;
+package org.swordsmen.kugoumusic.core.util;
 
 import com.axin.tool.core.util.AxinStringUtils;
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.EnvironmentCapable;
-import org.swordsmen.spark.core.constant.ApplicationConstants;
+import org.swordsmen.kugoumusic.core.constant.ApplicationConstants;
 
 import java.util.Arrays;
 import java.util.Optional;

@@ -1,10 +1,10 @@
-package org.swordsmen.spark.core;
+package org.swordsmen.kugoumusic.core;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
-import org.swordsmen.spark.core.util.ApplicationContextUtils;
+import org.swordsmen.kugoumusic.core.util.ApplicationContextUtils;
 
 /**
  * @author JLT
