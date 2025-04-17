@@ -4,6 +4,7 @@ dependencies {
     api 'com.axin.tool:axin-tool-crypto'
 
     api 'org.springframework:spring-context'
+    api 'org.springframework.boot:spring-boot-starter'
 }
 
 bootJar {
