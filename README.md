@@ -1,1 +1,1 @@
-# kugou music api
+# kugou music macos
