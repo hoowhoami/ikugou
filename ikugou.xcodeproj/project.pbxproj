@@ -8,14 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		1EC06E412E3DFDDE00B23D4F /* ikugouApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E402E3DFDDE00B23D4F /* ikugouApp.swift */; };
-		1EC06E432E3DFDDE00B23D4F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E422E3DFDDE00B23D4F /* ContentView.swift */; };
+		1EC06E432E3DFDDE00B23D4F /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E422E3DFDDE00B23D4F /* MainView.swift */; };
 		1EC06E452E3DFDE000B23D4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EC06E442E3DFDE000B23D4F /* Assets.xcassets */; };
 		1EC06E482E3DFDE000B23D4F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EC06E472E3DFDE000B23D4F /* Preview Assets.xcassets */; };
-		1EC06E4A2E3DFDE000B23D4F /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E492E3DFDE000B23D4F /* Persistence.swift */; };
-		1EC06E4D2E3DFDE000B23D4F /* ikugou.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E4B2E3DFDE000B23D4F /* ikugou.xcdatamodeld */; };
 		1EC06E582E3DFDE000B23D4F /* ikugouTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E572E3DFDE000B23D4F /* ikugouTests.swift */; };
 		1EC06E622E3DFDE000B23D4F /* ikugouUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E612E3DFDE000B23D4F /* ikugouUITests.swift */; };
 		1EC06E642E3DFDE000B23D4F /* ikugouUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC06E632E3DFDE000B23D4F /* ikugouUITestsLaunchTests.swift */; };
+		1EE76FFB2E3E46A0002683CD /* KuGouApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE76FFA2E3E46A0002683CD /* KuGouApi.swift */; };
+		1EE76FFD2E3E47CE002683CD /* AppConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1EE76FFC2E3E47CE002683CD /* AppConfig.plist */; };
+		1EE76FFF2E3E4953002683CD /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE76FFE2E3E4953002683CD /* AppConfig.swift */; };
+		1EE770012E3E5519002683CD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE770002E3E5519002683CD /* SettingsView.swift */; };
+		1EE770052E3E58D8002683CD /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE770042E3E58D8002683CD /* ThemeManager.swift */; };
+		1EE770072E3E5D66002683CD /* NavigationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE770062E3E5D66002683CD /* NavigationSection.swift */; };
+		1EE7700B2E3E6016002683CD /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE7700A2E3E6016002683CD /* ColorExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,17 +43,22 @@
 /* Begin PBXFileReference section */
 		1EC06E3D2E3DFDDE00B23D4F /* ikugou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ikugou.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EC06E402E3DFDDE00B23D4F /* ikugouApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ikugouApp.swift; sourceTree = "<group>"; };
-		1EC06E422E3DFDDE00B23D4F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1EC06E422E3DFDDE00B23D4F /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		1EC06E442E3DFDE000B23D4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1EC06E472E3DFDE000B23D4F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		1EC06E492E3DFDE000B23D4F /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		1EC06E4C2E3DFDE000B23D4F /* ikugou.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ikugou.xcdatamodel; sourceTree = "<group>"; };
 		1EC06E4E2E3DFDE000B23D4F /* ikugou.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ikugou.entitlements; sourceTree = "<group>"; };
 		1EC06E532E3DFDE000B23D4F /* ikugouTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ikugouTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EC06E572E3DFDE000B23D4F /* ikugouTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ikugouTests.swift; sourceTree = "<group>"; };
 		1EC06E5D2E3DFDE000B23D4F /* ikugouUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ikugouUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EC06E612E3DFDE000B23D4F /* ikugouUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ikugouUITests.swift; sourceTree = "<group>"; };
 		1EC06E632E3DFDE000B23D4F /* ikugouUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ikugouUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1EE76FFA2E3E46A0002683CD /* KuGouApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KuGouApi.swift; sourceTree = "<group>"; };
+		1EE76FFC2E3E47CE002683CD /* AppConfig.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = AppConfig.plist; sourceTree = "<group>"; };
+		1EE76FFE2E3E4953002683CD /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		1EE770002E3E5519002683CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1EE770042E3E58D8002683CD /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		1EE770062E3E5D66002683CD /* NavigationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationSection.swift; sourceTree = "<group>"; };
+		1EE7700A2E3E6016002683CD /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,12 +110,17 @@
 			isa = PBXGroup;
 			children = (
 				1EC06E402E3DFDDE00B23D4F /* ikugouApp.swift */,
-				1EC06E422E3DFDDE00B23D4F /* ContentView.swift */,
+				1EC06E422E3DFDDE00B23D4F /* MainView.swift */,
 				1EC06E442E3DFDE000B23D4F /* Assets.xcassets */,
-				1EC06E492E3DFDE000B23D4F /* Persistence.swift */,
 				1EC06E4E2E3DFDE000B23D4F /* ikugou.entitlements */,
-				1EC06E4B2E3DFDE000B23D4F /* ikugou.xcdatamodeld */,
 				1EC06E462E3DFDE000B23D4F /* Preview Content */,
+				1EE76FFA2E3E46A0002683CD /* KuGouApi.swift */,
+				1EE76FFC2E3E47CE002683CD /* AppConfig.plist */,
+				1EE76FFE2E3E4953002683CD /* AppConfig.swift */,
+				1EE770002E3E5519002683CD /* SettingsView.swift */,
+				1EE770042E3E58D8002683CD /* ThemeManager.swift */,
+				1EE770062E3E5D66002683CD /* NavigationSection.swift */,
+				1EE7700A2E3E6016002683CD /* ColorExtensions.swift */,
 			);
 			path = ikugou;
 			sourceTree = "<group>";
@@ -239,6 +254,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EE76FFD2E3E47CE002683CD /* AppConfig.plist in Resources */,
 				1EC06E482E3DFDE000B23D4F /* Preview Assets.xcassets in Resources */,
 				1EC06E452E3DFDE000B23D4F /* Assets.xcassets in Resources */,
 			);
@@ -265,10 +281,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EC06E4A2E3DFDE000B23D4F /* Persistence.swift in Sources */,
-				1EC06E432E3DFDDE00B23D4F /* ContentView.swift in Sources */,
+				1EE7700B2E3E6016002683CD /* ColorExtensions.swift in Sources */,
+				1EE770012E3E5519002683CD /* SettingsView.swift in Sources */,
+				1EC06E432E3DFDDE00B23D4F /* MainView.swift in Sources */,
+				1EE770072E3E5D66002683CD /* NavigationSection.swift in Sources */,
+				1EE76FFB2E3E46A0002683CD /* KuGouApi.swift in Sources */,
+				1EE76FFF2E3E4953002683CD /* AppConfig.swift in Sources */,
+				1EE770052E3E58D8002683CD /* ThemeManager.swift in Sources */,
 				1EC06E412E3DFDDE00B23D4F /* ikugouApp.swift in Sources */,
-				1EC06E4D2E3DFDE000B23D4F /* ikugou.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -589,19 +609,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		1EC06E4B2E3DFDE000B23D4F /* ikugou.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				1EC06E4C2E3DFDE000B23D4F /* ikugou.xcdatamodel */,
-			);
-			currentVersion = 1EC06E4C2E3DFDE000B23D4F /* ikugou.xcdatamodel */;
-			path = ikugou.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 1EC06E352E3DFDDE00B23D4F /* Project object */;
 }
