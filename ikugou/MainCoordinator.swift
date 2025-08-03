@@ -16,12 +16,15 @@ class MainCoordinator {
     }
     
     func start() {
+        print("🎯 MainCoordinator start 开始")
         // 初始化主视图控制器
         mainViewController = MainViewController()
+        print("🎯 MainViewController 创建完成")
         mainViewController.coordinator = self
-        
+
         // 设置为窗口内容视图
         window.contentViewController = mainViewController
+        print("🎯 MainCoordinator start 完成")
     }
     
     // 导航到不同页面

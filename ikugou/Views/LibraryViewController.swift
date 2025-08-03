@@ -8,6 +8,19 @@
 import Cocoa
 
 class LibraryViewController: NSViewController {
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
     // 模拟数据
     private let myPlaylists = [
         Playlist(id: "1", name: "我的最爱", coverUrl: "https://.example.com/favorites.jpg", owner: "我"),

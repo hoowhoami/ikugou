@@ -8,6 +8,19 @@
 import Cocoa
 
 class SearchViewController: NSViewController, NSSearchFieldDelegate {
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
     // 模拟搜索结果数据
     private let allSongs = [
         Song(id: "1", name: "Hello", artist: "Adele", album: "25", albumCoverUrl: "https://picsum.photos/seed/adele/300/300", audioUrl: "https://example.com/hello.mp3", duration: 215, trackNumber: 1),

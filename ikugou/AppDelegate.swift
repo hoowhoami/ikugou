@@ -1,71 +1,56 @@
-//
-//  AppDelegate.swift
-//  ikugou
-//
-//  Created by 蒋梁通 on 2025/8/3.
-//
-
 import Cocoa
-import AVFoundation
 
-@main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
     var window: NSWindow!
     var mainCoordinator: MainCoordinator!
-    private let audioEngine = AVAudioEngine()  // 音频引擎实例
-    
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 创建主窗口
+        print("🚀 应用启动开始")
+
+        // 确保应用程序激活
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+
+        // 创建窗口 - 模仿 Spotify 的尺寸和样式
         window = NSWindow(
-            contentRect: NSRect(x: 100, y: 100, width: 1200, height: 800),
+            contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
             styleMask: [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView],
-            backing: .buffered, defer: false)
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "ikugou"
+        // 设置合理的最小和最大尺寸，支持拖动调整
+        window.minSize = NSSize(width: 900, height: 600)
+        window.maxSize = NSSize(width: 1800, height: 1200)
         window.center()
-        window.title = "Spotify"
-        window.setFrameAutosaveName("Main Window")
-        
-        // 设置主协调器
+
+        // QQ音乐风格的窗口设置
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.isMovableByWindowBackground = true
+
+        // 禁用窗口状态恢复，确保每次都使用新的窗口大小
+        window.isRestorable = false
+        window.identifier = NSUserInterfaceItemIdentifier("MainWindow")
+
+        // 创建并启动主协调器
         mainCoordinator = MainCoordinator(window: window)
         mainCoordinator.start()
-        
-        window.makeKeyAndOrderFront(nil)
-        
-        // 配置音频环境（macOS 方式）
-        configureAudioEnvironment()
-    }
-    
-    // 配置 macOS 音频环境
-    private func configureAudioEnvironment() {
-        // 启动音频引擎作为音频环境的基础配置
-        do {
-            try audioEngine.start()
-            print("音频引擎启动成功")
-        } catch {
-            print("音频引擎启动失败: \(error.localizedDescription)")
-        }
-        
-        // 请求音频访问权限（对于现代 macOS 版本）
-        if #available(macOS 10.14, *) {
-            if #available(macOS 14.0, *) {
-                AVAudioApplication.requestRecordPermission { _ in
-                    // 在 macOS 中播放音频通常通常不需要不需要录音权限，但请求一下更保险
-                }
-            } else {
-                // Fallback on earlier versions
-            }
-        }
-    }
 
-    func applicationWillTerminate(_ notification: Notification) {
-        // 停止音频引擎并清理资源
-        audioEngine.stop()
-    }
-
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        // 显示窗口
         window.makeKeyAndOrderFront(nil)
-        return true
+
+        print("✅ 窗口创建完成")
     }
 }
-    
-    
+
+@main
+struct Main {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        app.setActivationPolicy(.regular)
+        app.run()
+    }
+}
