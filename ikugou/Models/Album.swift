@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+// 专辑模型
+struct Album: Identifiable {
+    let id: String
+    let name: String
+    let artist: String
+    let coverUrl: String
+}

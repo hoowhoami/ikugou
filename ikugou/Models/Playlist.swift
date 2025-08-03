@@ -6,3 +6,11 @@
 //
 
 import Foundation
+
+// 播放列表模型
+struct Playlist: Identifiable {
+    let id: String
+    let name: String
+    let coverUrl: String
+    let owner: String
+}

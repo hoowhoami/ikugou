@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+// 艺术家模型
+struct Artist: Identifiable {
+    let id: String
+    let name: String
+    let imageUrl: String
+}

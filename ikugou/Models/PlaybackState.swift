@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+// 播放状态模型
+struct PlaybackState {
+    let isPlaying: Bool
+    let currentSong: Song?
+    let progress: TimeInterval
+    let volume: Float
+    let repeatMode: RepeatMode
+    let shuffleEnabled: Bool
+}

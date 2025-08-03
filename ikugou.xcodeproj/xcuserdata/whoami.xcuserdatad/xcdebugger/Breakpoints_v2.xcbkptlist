@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "70B67359-845D-476C-89AF-94053FEE28E5"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ikugou/Views/MainViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "22"
+            endingLineNumber = "22"
+            landmarkName = "MainViewController"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - b045538cde8b11"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.coordinator.getter : Swift.Optional&lt;ikugou.MainCoordinator&gt;"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/ikugou/Views/MainViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - 31e2e988ced7542b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.coordinator.setter : Swift.Optional&lt;ikugou.MainCoordinator&gt;"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/ikugou/Views/MainViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - 977ab02cbb48363a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.coordinator.modify : Swift.Optional&lt;ikugou.MainCoordinator&gt;"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/ikugou/Views/MainViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - b81e62afeaff5080"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.coordinator.modify : Swift.Optional&lt;ikugou.MainCoordinator&gt; with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "15">
+               </Location>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - 70c86d07c92832ce"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.init(nibName: Swift.Optional&lt;Swift.String&gt;, bundle: Swift.Optional&lt;__C.NSBundle&gt;) -&gt; ikugou.MainViewController"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/ikugou/Views/MainViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22"
+                  offsetFromSymbolStart = "211">
+               </Location>
+               <Location
+                  uuid = "EC4FB27B-FF08-4F25-99FF-CDAFB5276B33 - 58792fee845aa471"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ikugou.MainViewController.init(coder: __C.NSCoder) -&gt; Swift.Optional&lt;ikugou.MainViewController&gt;"
+                  moduleName = "ikugou"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/whoami/opt/workspace/owner/ikugou/ikugou/Views/MainViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22"
+                  offsetFromSymbolStart = "159">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5F62E6BD-7A4F-4C93-AA1D-B9140558FECB"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ikugou/AppDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "20"
+            endingLineNumber = "20"
+            landmarkName = "applicationDidFinishLaunching(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "98301DD6-0108-4C8A-84E0-815C2FE3DDAF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ikugou/AppDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "30"
+            endingLineNumber = "30"
+            landmarkName = "applicationDidFinishLaunching(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "51571CD9-C9B1-4ACA-8A1B-07E571919F7D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ikugou/AppDelegate.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "29"
+            endingLineNumber = "29"
+            landmarkName = "applicationDidFinishLaunching(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
