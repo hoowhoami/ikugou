@@ -1,0 +1,8 @@
+# Treat Xcode project files as binary to avoid line ending issues
+*.pbxproj binary
+*.pbxproj merge=union
+
+# Optional: Other Xcode-related files that benefit from binary treatment
+*.xcworkspace binary
+*.xcuserstate binary
+*.xccheckout binary
