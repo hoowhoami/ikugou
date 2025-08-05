@@ -24,7 +24,6 @@ struct LibraryView: View {
                 Text("自定义歌单2")
             }
         }
-        .navigationTitle("音乐库")
         .onAppear {
             // 模拟加载数据
             myMusic = [

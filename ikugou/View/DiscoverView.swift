@@ -15,7 +15,6 @@ struct DiscoverView: View {
         List(hotSongs, id: \.id) { song in
             SongRow(song: song)
         }
-        .navigationTitle("发现")
         .onAppear {
             // 模拟加载热门歌曲
             hotSongs = [

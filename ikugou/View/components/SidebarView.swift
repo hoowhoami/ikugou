@@ -28,20 +28,41 @@ struct SidebarView: View {
                     }
                 }) {
                     if let avatar = appSettings.userInfo?.avatar, !avatar.isEmpty {
-                        AsyncImage(url: URL(string: avatar)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Image(systemName: "person.circle.fill")
-                                .foregroundColor(.secondary)
+                        AsyncImage(url: URL(string: avatar)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure(let error):
+                                // 图片加载失败时显示默认图标
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .onAppear {
+                                        print("SidebarView - 头像加载失败: \(error.localizedDescription)")
+                                    }
+                            case .empty:
+                                // 加载中显示占位符
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .opacity(0.5)
+                            @unknown default:
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
                         }
                         .frame(width: 32, height: 32)
                         .clipShape(Circle())
+                        .onAppear {
+                            print("SidebarView - 尝试加载头像: \(avatar)")
+                        }
                     } else {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 32))
                             .foregroundColor(.secondary)
+                            .onAppear {
+                                print("SidebarView - 头像为空或nil，显示默认图标. Avatar: \(appSettings.userInfo?.avatar ?? "nil")")
+                            }
                     }
                 }
                 .buttonStyle(.plain)
@@ -119,7 +140,11 @@ struct SidebarView: View {
 
             // 底部设置按钮
             VStack(spacing: 0) {
-                Divider()
+                // 细致的分割线
+                Rectangle()
+                    .fill(Color(NSColor.separatorColor).opacity(0.3))
+                    .frame(height: 0.5)
+                    .padding(.horizontal, 16)
 
                 Button(action: {
                     showSettings = true
@@ -150,7 +175,7 @@ struct SidebarView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                //.padding(.bottom, 20)
+                .padding(.bottom, 12)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

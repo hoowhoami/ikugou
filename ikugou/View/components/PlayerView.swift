@@ -73,11 +73,11 @@ struct PlayerView: View {
         .frame(height: 80)
         .background(Color(NSColor.windowBackgroundColor))
         .overlay(
-            // 底部边框
+            // 顶部边框
             Rectangle()
-                .fill(Color(NSColor.separatorColor))
-                .frame(height: 1),
-            alignment: .bottom
+                .fill(Color(NSColor.separatorColor).opacity(0.5))
+                .frame(height: 0.5),
+            alignment: .top
         )
     }
 }
@@ -97,12 +97,12 @@ struct TopProgressBarView: View {
                 // 背景条
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
-                    .frame(height: isHovering || isDragging ? 6 : 2)
+                    .frame(height: isHovering || isDragging ? 6 : 3)
 
                 // 进度条
                 Rectangle()
                     .fill(Color.accentColor)
-                    .frame(width: geometry.size.width * (currentTime / duration), height: isHovering || isDragging ? 6 : 2)
+                    .frame(width: geometry.size.width * (currentTime / duration), height: isHovering || isDragging ? 6 : 3)
 
                 // 拖拽手柄（仅在悬停或拖拽时显示）
                 if isHovering || isDragging {
@@ -154,7 +154,7 @@ struct TopProgressBarView: View {
                 }
             }
         }
-        .frame(height: isHovering || isDragging ? 20 : 4)
+        .frame(height: isHovering || isDragging ? 20 : 6)
         .animation(.easeInOut(duration: 0.2), value: isHovering)
         .animation(.easeInOut(duration: 0.2), value: isDragging)
     }

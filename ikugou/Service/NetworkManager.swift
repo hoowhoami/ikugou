@@ -44,7 +44,9 @@ class NetworkManager {
     static let shared = NetworkManager()
     
     /// 基础URL
-    private let baseURL = "https://kgmusic-api.vercel.app"
+    private var baseURL: String {
+        return AppSettings.shared.apiBaseURL
+    }
     
     /// 用户认证信息
     var userAuth: UserAuth?
@@ -104,11 +106,17 @@ class NetworkManager {
         responseType: T.Type
     ) async throws -> T {
         do {
+            // 调试输出：请求信息
+            print("📡 Request: \(request.url?.absoluteString ?? "unknown")")
+            
             let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NetworkError.networkError(URLError(.badServerResponse))
             }
+            
+            // 调试输出：响应状态码
+            print("📡 Response Status: \(httpResponse.statusCode)")
             
             guard 200...299 ~= httpResponse.statusCode else {
                 throw NetworkError.serverError(httpResponse.statusCode)
@@ -118,12 +126,17 @@ class NetworkManager {
                 throw NetworkError.noData
             }
             
+            // 调试输出：响应数据
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("📡 Response Data: \(jsonString)")
+            }
+            
             do {
                 let decodedResponse = try JSONDecoder().decode(T.self, from: data)
                 return decodedResponse
             } catch {
-                print("Decoding error: \(error)")
-                print("Response data: \(String(data: data, encoding: .utf8) ?? "nil")")
+                print("❌ Decoding error: \(error)")
+                print("❌ Response data: \(String(data: data, encoding: .utf8) ?? "nil")")
                 throw NetworkError.decodingError
             }
         } catch let error as NetworkError {

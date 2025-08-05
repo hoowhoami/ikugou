@@ -140,20 +140,41 @@ struct StableTitleBarContent: View {
                     viewModel.showUserMenu.toggle()
                 }) {
                     if let avatar = appSettings.userInfo?.avatar, !avatar.isEmpty {
-                        AsyncImage(url: URL(string: avatar)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Image(systemName: "person.circle.fill")
-                                .foregroundColor(.secondary)
+                        AsyncImage(url: URL(string: avatar)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure(let error):
+                                // 图片加载失败时显示默认图标
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .onAppear {
+                                        print("SimpleTitleBar - 头像加载失败: \(error.localizedDescription)")
+                                    }
+                            case .empty:
+                                // 加载中显示占位符
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .opacity(0.5)
+                            @unknown default:
+                                Image(systemName: "person.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
                         }
                         .frame(width: 20, height: 20)
                         .clipShape(Circle())
+                        .onAppear {
+                            print("SimpleTitleBar - 尝试加载头像: \(avatar)")
+                        }
                     } else {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 20))
                             .foregroundColor(.secondary)
+                            .onAppear {
+                                print("SimpleTitleBar - 头像为空或nil，显示默认图标. Avatar: \(appSettings.userInfo?.avatar ?? "nil")")
+                            }
                     }
                 }
                 .buttonStyle(.plain)
@@ -216,31 +237,30 @@ struct SimplifiedTitleBarContent: View {
     @ObservedObject var viewModel: TitleBarViewModel
 
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            // 左侧留空，让搜索框居中
-            Spacer()
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 0) {
+                // 中间：搜索框 - 居中显示
+                HStack(alignment: .center, spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 13))
+                        .frame(width: 13, height: 13)
 
-            // 中间：搜索框
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 12))
-
-                TextField("搜索音乐、歌手、歌单、分享码", text: $viewModel.searchText)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 11))
+                    TextField("搜索音乐、歌手、歌单、分享码", text: $viewModel.searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12))
+                }
+                .frame(width: 360, height: 28) // 固定宽度和高度，防止焦点变化时位移
+                .padding(.horizontal, 14)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(10)
+                .padding(.horizontal, 32) // 确保左右有足够边距
             }
-            .frame(height: 34)
-            .padding(.horizontal, 12)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(8)
-            .frame(width: 320)
-
-            Spacer()
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(height: 50) // 固定标题栏高度
+        .padding(.vertical, 8) // 添加垂直内边距
         .background(Color(NSColor.windowBackgroundColor))
-        .padding(.vertical, 8) // 添加垂直内边距，防止贴边
     }
 }
 

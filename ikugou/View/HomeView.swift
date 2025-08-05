@@ -38,7 +38,6 @@ struct HomeView: View {
                 ]
             }
         }
-        .navigationTitle("首页")
     }
 }
 
