@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppSettings.self) private var appSettings
+    @Environment(AppSetting.self) private var appSettings
     
     @State private var selectedTab: SettingsTab = .appearance
     @State private var tempApiURL: String = ""
@@ -80,7 +80,7 @@ enum SettingsTab: String, CaseIterable {
 
 // 外观设置视图
 struct AppearanceSettingsView: View {
-    @Environment(AppSettings.self) private var appSettings
+    @Environment(AppSetting.self) private var appSettings
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -92,51 +92,151 @@ struct AppearanceSettingsView: View {
                 Text("主题模式")
                     .font(.headline)
                 
-                VStack(spacing: 8) {
-                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                        HStack {
-                            Button(action: {
-                                appSettings.appearanceMode = mode
-                            }) {
-                                HStack {
-                                    Image(systemName: appSettings.appearanceMode == mode ? "largecircle.fill.circle" : "circle")
-                                        .foregroundColor(appSettings.appearanceMode == mode ? .accentColor : .secondary)
-                                    
-                                    Text(mode.displayName)
-                                        .foregroundColor(.primary)
-                                    
-                                    Spacer()
-                                }
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                .padding(.leading, 8)
-            }
-            
-            Divider()
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("预览")
-                    .font(.headline)
-                
-                HStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.primary)
-                        .frame(width: 60, height: 40)
-                        .overlay(
-                            Text("Aa")
-                                .foregroundColor(Color(NSColor.windowBackgroundColor))
+                HStack(spacing: 16) {
+                    // 浅色主题预览
+                    Button(action: {
+                        appSettings.appearanceMode = .light
+                    }) {
+                        VStack(spacing: 8) {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white)
+                                .frame(width: 80, height: 60)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(
+                                            appSettings.appearanceMode == .light 
+                                            ? Color.accentColor 
+                                            : Color.gray.opacity(0.3), 
+                                            lineWidth: appSettings.appearanceMode == .light ? 2 : 1
+                                        )
+                                )
+                                .overlay(
+                                    VStack(spacing: 2) {
+                                        Circle()
+                                            .fill(Color.black.opacity(0.8))
+                                            .frame(width: 16, height: 16)
+                                        Rectangle()
+                                            .fill(Color.black.opacity(0.6))
+                                            .frame(width: 40, height: 3)
+                                            .cornerRadius(1.5)
+                                        Rectangle()
+                                            .fill(Color.black.opacity(0.4))
+                                            .frame(width: 30, height: 2)
+                                            .cornerRadius(1)
+                                    }
+                                )
+                            
+                            Text("浅色")
                                 .font(.caption)
-                        )
+                                .foregroundColor(appSettings.appearanceMode == .light ? .accentColor : .primary)
+                                .fontWeight(appSettings.appearanceMode == .light ? .medium : .regular)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .scaleEffect(appSettings.appearanceMode == .light ? 1.05 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: appSettings.appearanceMode)
                     
-                    Text("当前主题预览")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    // 深色主题预览
+                    Button(action: {
+                        appSettings.appearanceMode = .dark
+                    }) {
+                        VStack(spacing: 8) {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black)
+                                .frame(width: 80, height: 60)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(
+                                            appSettings.appearanceMode == .dark 
+                                            ? Color.accentColor 
+                                            : Color.gray.opacity(0.5), 
+                                            lineWidth: appSettings.appearanceMode == .dark ? 2 : 1
+                                        )
+                                )
+                                .overlay(
+                                    VStack(spacing: 2) {
+                                        Circle()
+                                            .fill(Color.white.opacity(0.9))
+                                            .frame(width: 16, height: 16)
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.7))
+                                            .frame(width: 40, height: 3)
+                                            .cornerRadius(1.5)
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.5))
+                                            .frame(width: 30, height: 2)
+                                            .cornerRadius(1)
+                                    }
+                                )
+                            
+                            Text("深色")
+                                .font(.caption)
+                                .foregroundColor(appSettings.appearanceMode == .dark ? .accentColor : .primary)
+                                .fontWeight(appSettings.appearanceMode == .dark ? .medium : .regular)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .scaleEffect(appSettings.appearanceMode == .dark ? 1.05 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: appSettings.appearanceMode)
+                    
+                    // 跟随系统主题预览
+                    Button(action: {
+                        appSettings.appearanceMode = .system
+                    }) {
+                        VStack(spacing: 8) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.white, Color.black],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 80, height: 60)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(
+                                                appSettings.appearanceMode == .system 
+                                                ? Color.accentColor 
+                                                : Color.gray.opacity(0.4), 
+                                                lineWidth: appSettings.appearanceMode == .system ? 2 : 1
+                                            )
+                                    )
+                                
+                                VStack(spacing: 2) {
+                                    Circle()
+                                        .fill(Color.primary.opacity(0.8))
+                                        .frame(width: 16, height: 16)
+                                    Rectangle()
+                                        .fill(Color.primary.opacity(0.6))
+                                        .frame(width: 40, height: 3)
+                                        .cornerRadius(1.5)
+                                    Rectangle()
+                                        .fill(Color.primary.opacity(0.4))
+                                        .frame(width: 30, height: 2)
+                                        .cornerRadius(1)
+                                }
+                                .shadow(color: .white, radius: 0.5)
+                                .shadow(color: .black, radius: 0.5)
+                            }
+                            
+                            Text("跟随系统")
+                                .font(.caption)
+                                .foregroundColor(appSettings.appearanceMode == .system ? .accentColor : .primary)
+                                .fontWeight(appSettings.appearanceMode == .system ? .medium : .regular)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .scaleEffect(appSettings.appearanceMode == .system ? 1.05 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: appSettings.appearanceMode)
                 }
+                .padding(.top, 8)
+                
+                Text("当前主题: \(appSettings.appearanceMode.displayName)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 8)
             }
             
             Spacer()
@@ -146,7 +246,7 @@ struct AppearanceSettingsView: View {
 
 // API设置视图
 struct APISettingsView: View {
-    @Environment(AppSettings.self) private var appSettings
+    @Environment(AppSetting.self) private var appSettings
     @Binding var tempApiURL: String
     @State private var showResetAlert = false
     
@@ -282,5 +382,5 @@ struct InfoRow: View {
 
 #Preview {
     SettingsView()
-        .environment(AppSettings.shared)
+        .environment(AppSetting.shared)
 }

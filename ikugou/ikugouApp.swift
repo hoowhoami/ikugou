@@ -18,13 +18,18 @@ struct ikugouApp: App {
     @State private var playerManager = PlayerManager()
 
     /// 应用设置管理器
-    @State private var appSettings = AppSettings.shared
+    @State private var appSetting = AppSetting.shared
+    
+    /// 用户服务管理器
+    @State private var userService = UserService.shared
+    
     
     var body: some Scene {
         WindowGroup {
             MainView()
                 .environment(playerManager)
-                .environment(appSettings)
+                .environment(appSetting)
+                .environment(userService)
                 .onAppear {
                     loadSampleData()
                     configureWindow()
@@ -73,5 +78,6 @@ struct ikugouApp: App {
     // 预览 MainView 并手动注入环境
     MainView()
         .environment(PlayerManager())
-        .environment(AppSettings.shared)
+        .environment(AppSetting.shared)
+        .environment(UserService.shared)
 }

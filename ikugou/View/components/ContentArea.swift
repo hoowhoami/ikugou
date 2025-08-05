@@ -19,6 +19,8 @@ struct ContentArea: View {
                 DiscoverView()
             case .library:
                 LibraryView()
+            case .userProfile:
+                UserProfileView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

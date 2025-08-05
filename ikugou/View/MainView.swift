@@ -12,10 +12,7 @@ struct MainView: View {
     /// 当前选中的导航项
     @State private var selectedItem: NavigationItemType = .home
 
-    @Environment(AppSettings.self) private var appSettings
-
-    // 使用 @StateObject 来保持标题栏组件的稳定性
-    @StateObject private var titleBarViewModel = TitleBarViewModel()
+    @Environment(AppSetting.self) private var appSettings
 
     var body: some View {
         NavigationStack {
@@ -42,7 +39,7 @@ struct MainView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .principal) {
                     // 简化的标题栏：只有搜索框
-                    SimplifiedTitleBarContent(viewModel: titleBarViewModel)
+                    CustomTitleBarContent()
                         .frame(maxWidth: .infinity)
                 }
             }

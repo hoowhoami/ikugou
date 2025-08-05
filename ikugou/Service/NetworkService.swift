@@ -1,5 +1,5 @@
 //
-//  NetworkManager.swift
+//  NetworkService.swift
 //  ikugou
 //
 //  Created by AI Assistant on 2025/8/4.
@@ -38,14 +38,14 @@ struct UserAuth {
     let userid: String
 }
 
-/// 网络管理器
+/// 网络服务
 @Observable
-class NetworkManager {
-    static let shared = NetworkManager()
+class NetworkService {
+    static let shared = NetworkService()
     
     /// 基础URL
     private var baseURL: String {
-        return AppSettings.shared.apiBaseURL
+        return AppSetting.shared.apiBaseURL
     }
     
     /// 用户认证信息
@@ -157,7 +157,7 @@ enum HTTPMethod: String {
 }
 
 // MARK: - 网络请求方法扩展
-extension NetworkManager {
+extension NetworkService {
     /// GET 请求
     func get<T: Codable>(
         endpoint: String,

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppSettings.self) private var appSettings
+    @Environment(UserService.self) private var userService
     
     // 登录方式
     @State private var loginType: LoginType = .mobile
@@ -38,6 +38,26 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
+                // 关闭按钮
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .frame(width: 32, height: 32)
+                            .background(
+                                Circle()
+                                    .fill(Color(NSColor.controlBackgroundColor))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 16)
+                .padding(.trailing, 16)
+                
                 // 标题
                 VStack(spacing: 8) {
                     Text("登录 ikugou")
@@ -268,12 +288,12 @@ struct LoginView: View {
             }
             
             do {
-                let loginData = try await loginService.loginWithMobile(
+                let user = try await loginService.loginWithMobile(
                     mobile: mobile,
                     code: verificationCode
                 )
                 
-                await handleLoginSuccess(loginData)
+                await handleLoginSuccess(user)
             } catch let error as LoginError {
                 await MainActor.run {
                     handleLoginError(error)
@@ -396,16 +416,10 @@ struct LoginView: View {
                     
                     // 登录成功，处理登录数据
                     if let token = data.token {
-                        let loginData = LoginResponse.LoginData(
-                            token: token,
-                            userid: String(data.userid ?? 0),
-                            username: data.nickname,
-                            avatar: data.pic,
-                            profile: nil
-                        )
-                        
-                        Task {
-                            await handleLoginSuccess(loginData)
+                        if let user = data.toUser() {
+                            Task {
+                                await handleLoginSuccess(user)
+                            }
                         }
                     }
                 default:
@@ -439,9 +453,9 @@ struct LoginView: View {
     
     // MARK: - 辅助方法
     
-    private func handleLoginSuccess(_ loginData: LoginResponse.LoginData) async {
+    private func handleLoginSuccess(_ user: User) async {
         do {
-            try await loginService.completeLoginProcess(loginData: loginData)
+            try await loginService.completeLoginProcess(userInfo: user)
             
             await MainActor.run {
                 isLoading = false
@@ -451,7 +465,7 @@ struct LoginView: View {
             await MainActor.run {
                 print("完整登录流程失败: \(error)")
                 // 即使完整流程失败，如果基础登录成功了也应该继续
-                if AppSettings.shared.isLoggedIn {
+                if userService.isLoggedIn {
                     isLoading = false
                     dismiss()
                 } else {
@@ -484,5 +498,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .environment(AppSettings.shared)
+        .environment(UserService.shared)
 }

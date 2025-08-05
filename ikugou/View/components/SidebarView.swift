@@ -10,24 +10,23 @@ import SwiftUI
 // 左侧导航栏
 struct SidebarView: View {
     @Binding var selectedItem: NavigationItemType
-    @State private var showUserMenu = false
     @State private var showSettings = false
     @State private var showLoginSheet = false
 
-    @Environment(AppSettings.self) private var appSettings
+    @Environment(UserService.self) private var userService
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // 顶部个人中心
-            HStack(spacing: 12) {
-                Button(action: {
-                    if appSettings.isLoggedIn {
-                        showUserMenu.toggle()
-                    } else {
-                        showLoginSheet = true
-                    }
-                }) {
-                    if let avatar = appSettings.userInfo?.avatar, !avatar.isEmpty {
+            Button(action: {
+                if userService.isLoggedIn {
+                    selectedItem = .userProfile
+                } else {
+                    showLoginSheet = true
+                }
+            }) {
+                HStack(spacing: 12) {
+                    if let avatar = userService.currentUser?.avatar, !avatar.isEmpty {
                         AsyncImage(url: URL(string: avatar)) { phase in
                             switch phase {
                             case .success(let image):
@@ -61,57 +60,37 @@ struct SidebarView: View {
                             .font(.system(size: 32))
                             .foregroundColor(.secondary)
                             .onAppear {
-                                print("SidebarView - 头像为空或nil，显示默认图标. Avatar: \(appSettings.userInfo?.avatar ?? "nil")")
+                                print("SidebarView - 头像为空或nil，显示默认图标. Avatar: \(userService.currentUser?.avatar ?? "nil")")
                             }
                     }
-                }
-                .buttonStyle(.plain)
-                .popover(isPresented: $showUserMenu, arrowEdge: .trailing) {
-                    UserInfoPopover()
-                }
-                .onHover { isHovering in
-                    if isHovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    if appSettings.isLoggedIn {
-                        Text(appSettings.userInfo?.username ?? "用户")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        if userService.isLoggedIn {
+                            Text(userService.currentUser?.username ?? "用户")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.primary)
 
-                        Text("已登录")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    } else {
-                        Button(action: {
-                            showLoginSheet = true
-                        }) {
+                            Text("已登录")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        } else {
                             Text("点击登录")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.accentColor)
                         }
-                        .buttonStyle(.plain)
-                        .onHover { isHovering in
-                            if isHovering {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
                     }
-                }
 
-                Spacer()
+                    Spacer()
+                }
+                .frame(height: 60)
+                .padding(.horizontal, 16)
+                .contentShape(Rectangle()) // 确保整个区域可点击
             }
-            .padding(.horizontal, 16)
+            .buttonStyle(.plain)
             .padding(.top, 20)
 
             // 导航项目
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
                 SidebarNavigationItem(
                     title: "首页",
                     icon: "house",
@@ -161,21 +140,14 @@ struct SidebarView: View {
 
                         Spacer()
                     }
-                    .frame(height: 80)
+                    .frame(height: 44)
                     .padding(.horizontal, 12)
                     .background(Color.clear)
                     .contentShape(Rectangle()) // 确保整个区域可点击
                 }
                 .buttonStyle(.plain)
-                .onHover { isHovering in
-                    if isHovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                .padding(.bottom, 8) // 减少底部padding，让设置更接近底部
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -209,58 +181,15 @@ struct SidebarNavigationItem: View {
                 
                 Spacer()
             }
-            .frame(height: 32)
+            .frame(height: 44)
             .padding(.horizontal, 12)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
             )
+            .contentShape(Rectangle()) // 确保整个区域可点击
         }
         .buttonStyle(.plain)
-        .onHover { isHovering in
-            if isHovering {
-                NSCursor.pointingHand.push()
-            } else {
-                NSCursor.pop()
-            }
-        }
-    }
-}
-
-// 用户信息弹窗
-struct UserInfoPopover: View {
-    @Environment(AppSettings.self) private var appSettings
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // 用户基本信息
-            VStack(alignment: .leading, spacing: 4) {
-                Text(appSettings.userInfo?.username ?? "用户")
-                    .font(.headline)
-                    .fontWeight(.medium)
-
-                Text("ID: \(appSettings.userInfo?.userid ?? "")")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            Divider()
-
-            // 登出按钮
-            Button(action: {
-                appSettings.logout()
-            }) {
-                HStack {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                    Text("登出")
-                    Spacer()
-                }
-                .foregroundColor(.red)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(12)
-        .frame(width: 160)
     }
 }
 

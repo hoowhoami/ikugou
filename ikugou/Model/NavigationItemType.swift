@@ -12,6 +12,7 @@ enum NavigationItemType: String, CaseIterable, Identifiable {
     case home = "首页"
     case discover = "发现"
     case library = "音乐库"
+    case userProfile = "用户详情"
     
     var id: String { rawValue }
     
@@ -21,6 +22,7 @@ enum NavigationItemType: String, CaseIterable, Identifiable {
         case .home: return "house"
         case .discover: return "compass"
         case .library: return "music.note.list"
+        case .userProfile: return "person.circle"
         }
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    /// 首页 ViewModel（后续可扩展，当前演示简单数据）
+    /// 首页数据
     @State private var recommendedPlaylists: [Song] = []
     
     var body: some View {
@@ -31,7 +31,7 @@ struct HomeView: View {
             }
             .padding(20)
             .onAppear {
-                // 模拟加载数据（实际可通过 ViewModel 从网络/本地获取）
+                // 模拟加载数据（实际可通过服务层从网络/本地获取）
                 recommendedPlaylists = [
                     Song(title: "歌曲1", artist: "歌手A", album: "专辑X", cover: "cover1"),
                     Song(title: "歌曲2", artist: "歌手B", album: "专辑Y", cover: "cover2")
