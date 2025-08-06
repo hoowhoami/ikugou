@@ -37,9 +37,6 @@ struct SidebarView: View {
                                 // 图片加载失败时显示默认图标
                                 Image(systemName: "person.circle.fill")
                                     .foregroundColor(.secondary)
-                                    .onAppear {
-                                        print("SidebarView - 头像加载失败: \(error.localizedDescription)")
-                                    }
                             case .empty:
                                 // 加载中显示占位符
                                 Image(systemName: "person.circle.fill")
@@ -52,16 +49,10 @@ struct SidebarView: View {
                         }
                         .frame(width: 32, height: 32)
                         .clipShape(Circle())
-                        .onAppear {
-                            print("SidebarView - 尝试加载头像: \(avatar)")
-                        }
                     } else {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 32))
                             .foregroundColor(.secondary)
-                            .onAppear {
-                                print("SidebarView - 头像为空或nil，显示默认图标. Avatar: \(userService.currentUser?.avatar ?? "nil")")
-                            }
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -70,9 +61,10 @@ struct SidebarView: View {
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.primary)
 
-                            Text("已登录")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                            Image(userService.isVipUser ? "vip-card-open" : "vip-card-close")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 16, height: 16)
                         } else {
                             Text("点击登录")
                                 .font(.system(size: 14, weight: .medium))

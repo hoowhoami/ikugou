@@ -2,7 +2,7 @@
 //  DiscoverView.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/4.
+//  Created on 2025/8/4.
 //
 
 import SwiftUI
@@ -29,15 +29,50 @@ struct DiscoverView: View {
         let song: Song
         var body: some View {
             HStack {
-                Image(song.cover)
+                Image(song.cover ?? "")
                     .resizable()
                     .frame(width: 44, height: 44)
                     .cornerRadius(4)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(song.title)
-                        .font(.subheadline)
-                    Text(song.artist)
+                    HStack(spacing: 4) {
+                        Text(song.title ?? "")
+                            .font(.subheadline)
+                        
+                        // 音质标识
+                        if song.isVip == true {
+                            Text("VIP")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.orange.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                        
+                        if song.isSq == true {
+                            Text("SQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        } else if song.isHq == true {
+                            Text("HQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                    }
+                    
+                    Text(song.artist ?? "")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

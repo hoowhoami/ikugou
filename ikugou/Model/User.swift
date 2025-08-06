@@ -116,6 +116,64 @@ struct User: Codable {
         self.t1 = nil
     }
     
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 🎯 优雅简洁的解码方式 - 核心字段必需，其他可选
+        self.userid = c[safe: .userid] ?? 0
+        self.username = c[safe: .username] ?? ""
+        self.nickname = c[safe: .nickname] ?? ""
+        self.token = c[safe: .token] ?? ""
+        self.avatar = c[safe: .avatar]
+        self.mobile = c[safe: .mobile]
+        self.qq = c[safe: .qq]
+        self.wechat = c[safe: .wechat]
+        self.sex = c[safe: .sex]
+        self.birthday = c[safe: .birthday]
+        self.birthday_mmdd = c[safe: .birthday_mmdd]
+        self.reg_time = c[safe: .reg_time]
+        self.servertime = c[safe: .servertime]
+        
+        // VIP相关信息
+        self.is_vip = c[safe: .is_vip]
+        self.vip_type = c[safe: .vip_type]
+        self.vip_token = c[safe: .vip_token]
+        self.vip_begin_time = c[safe: .vip_begin_time]
+        self.vip_end_time = c[safe: .vip_end_time]
+        self.su_vip_begin_time = c[safe: .su_vip_begin_time]
+        self.su_vip_end_time = c[safe: .su_vip_end_time]
+        self.su_vip_y_endtime = c[safe: .su_vip_y_endtime]
+        self.su_vip_clearday = c[safe: .su_vip_clearday]
+        
+        // 听歌相关
+        self.listen_type = c[safe: .listen_type]
+        self.listen_begin_time = c[safe: .listen_begin_time]
+        self.listen_end_time = c[safe: .listen_end_time]
+        self.roam_type = c[safe: .roam_type]
+        self.roam_begin_time = c[safe: .roam_begin_time]
+        self.roam_end_time = c[safe: .roam_end_time]
+        
+        // 音乐相关
+        self.m_type = c[safe: .m_type]
+        self.m_begin_time = c[safe: .m_begin_time]
+        self.m_end_time = c[safe: .m_end_time]
+        self.m_is_old = c[safe: .m_is_old]
+        self.y_type = c[safe: .y_type]
+        
+        // 其他字段
+        self.exp = c[safe: .exp]
+        self.score = c[safe: .score]
+        self.user_type = c[safe: .user_type]
+        self.user_y_type = c[safe: .user_y_type]
+        self.t_expire_time = c[safe: .t_expire_time]
+        self.totp_server_timestamp = c[safe: .totp_server_timestamp]
+        self.bookvip_valid = c[safe: .bookvip_valid]
+        self.bookvip_end_time = c[safe: .bookvip_end_time]
+        self.arttoy_avatar = c[safe: .arttoy_avatar]
+        self.bc_code = c[safe: .bc_code]
+        self.t1 = c[safe: .t1]
+    }
+    
     // API响应的字段映射
     private enum CodingKeys: String, CodingKey {
         case userid, username, nickname, token
@@ -330,4 +388,11 @@ struct UserVipResponse: Codable {
     struct VipLimitQuota: Codable {
         let total: Int?
     }
+}
+
+// MARK: - Token刷新响应模型
+struct TokenRefreshResponse: Codable {
+    let status: Int
+    let error_code: Int
+    let data: User?
 }

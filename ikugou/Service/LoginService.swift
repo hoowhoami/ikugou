@@ -28,8 +28,10 @@ class LoginService {
                 responseType: CaptchaResponse.self
             )
             
-            if response.status != 1 {
-                throw LoginError.serverError(response.error_code, "发送验证码失败")
+            if response.status == 1 {
+                // Success
+            } else {
+                throw LoginError.serverError(response.error_code ?? -1, "发送验证码失败")
             }
         } catch let error as NetworkError {
             throw LoginError.networkError(error.localizedDescription)
@@ -64,7 +66,7 @@ class LoginService {
             if response.status == 1, response.error_code == 0, let data = response.data {
                 return data
             } else {
-                throw LoginError.serverError(response.error_code, "登录失败")
+                throw LoginError.serverError(response.error_code ?? -1, "登录失败")
             }
         } catch let error as NetworkError {
             throw LoginError.networkError(error.localizedDescription)
@@ -88,10 +90,10 @@ class LoginService {
                 responseType: QRKeyResponse.self
             )
             
-            if response.status == 1, let data = response.data {
-                return (data.qrcode, data.qrcode_img)
+            if response.status == 1, let data = response.data, let qrcode = data.qrcode {
+                return (qrcode, data.qrcode_img)
             } else {
-                throw LoginError.serverError(response.error_code, "生成二维码失败")
+                throw LoginError.serverError(response.error_code ?? -1, "生成二维码失败")
             }
         } catch let error as NetworkError {
             throw LoginError.networkError(error.localizedDescription)

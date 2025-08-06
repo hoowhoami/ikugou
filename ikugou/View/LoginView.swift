@@ -384,16 +384,10 @@ struct LoginView: View {
         do {
             let response = try await loginService.checkQRStatus(key: qrKey)
             
-            // 添加调试输出
-            print("QR Status Response - Status: \(response.status), Error Code: \(response.error_code)")
-            if let data = response.data {
-                print("QR Data - Status: \(data.status), Token: \(data.token != nil ? "exists" : "nil")")
-            }
             
             await MainActor.run {
                 // 检查外层status是否成功
                 guard response.status == 1, let data = response.data else {
-                    print("响应失败或无数据")
                     return
                 }
                 
@@ -401,21 +395,17 @@ struct LoginView: View {
                 switch data.status {
                 case 0:
                     qrStatus = .expired
-                    print("二维码已过期")
                     stopQRPolling()
                 case 1:
                     qrStatus = .waiting
-                    print("等待扫码")
                 case 2:
                     qrStatus = .scanned
-                    print("已扫码，待确认")
                 case 4:
                     qrStatus = .confirmed
-                    print("授权登录成功")
                     stopQRPolling()
                     
                     // 登录成功，处理登录数据
-                    if let token = data.token {
+                    if data.token != nil {
                         if let user = data.toUser() {
                             Task {
                                 await handleLoginSuccess(user)
@@ -423,12 +413,10 @@ struct LoginView: View {
                         }
                     }
                 default:
-                    print("未知状态码: \(data.status)")
                     break
                 }
             }
         } catch {
-            print("检查二维码状态失败: \(error)")
             // 不要因为单次错误就停止轮询，继续等待下次检查
             // 只有在多次连续失败时才考虑停止
         }
@@ -463,7 +451,6 @@ struct LoginView: View {
             }
         } catch {
             await MainActor.run {
-                print("完整登录流程失败: \(error)")
                 // 即使完整流程失败，如果基础登录成功了也应该继续
                 if userService.isLoggedIn {
                     isLoading = false

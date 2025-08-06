@@ -2,7 +2,7 @@
 //  ikugouApp.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/4.
+//  Created on 2025/8/4.
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ struct ikugouApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     /// 全局播放管理器（注入环境，供所有视图访问）
-    @State private var playerManager = PlayerManager()
+    @State private var playerService = PlayerService.shared
 
     /// 应用设置管理器
     @State private var appSetting = AppSetting.shared
@@ -27,29 +27,20 @@ struct ikugouApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-                .environment(playerManager)
+                .environment(playerService)
                 .environment(appSetting)
                 .environment(userService)
                 .onAppear {
-                    loadSampleData()
                     configureWindow()
+                    
+                    // app启动时自动刷新token和用户信息
+                    Task {
+                        await userService.autoRefreshOnAppLaunch()
+                    }
                 }
         }
         .windowResizability(.contentSize)
 
-    }
-
-    /// 加载示例数据
-    private func loadSampleData() {
-        let sampleSongs = [
-            Song(title: "我的音乐 1", artist: "歌手 X", album: "专辑 X", cover: "cover1"),
-            Song(title: "我的音乐 2", artist: "歌手 Y", album: "专辑 Y", cover: "cover2"),
-            Song(title: "自定义歌单 1", artist: "艺术家 A", album: "专辑 A", cover: "cover1"),
-            Song(title: "自定义歌单 2", artist: "艺术家 B", album: "专辑 B", cover: "cover2"),
-            Song(title: "收藏的音乐", artist: "多位艺术家", album: "精选集", cover: "cover1")
-        ]
-
-        playerManager.loadPlaylist(sampleSongs)
     }
 
     /// 配置窗口样式
@@ -60,7 +51,7 @@ struct ikugouApp: App {
                 window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
                 window.titlebarAppearsTransparent = true
                 window.titleVisibility = .hidden
-                window.isMovableByWindowBackground = true
+                window.isMovableByWindowBackground = false
                 window.title = ""
 
                 // 确保标题栏完全透明
@@ -77,7 +68,7 @@ struct ikugouApp: App {
 #Preview {
     // 预览 MainView 并手动注入环境
     MainView()
-        .environment(PlayerManager())
+        .environment(PlayerService.shared)
         .environment(AppSetting.shared)
         .environment(UserService.shared)
 }

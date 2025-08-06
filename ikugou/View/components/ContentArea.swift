@@ -2,7 +2,7 @@
 //  ContentArea.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/4.
+//  Created on 2025/8/4.
 //
 
 import SwiftUI

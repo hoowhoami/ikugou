@@ -1,0 +1,57 @@
+# Xcode 项目文件
+*.xcworkspace/
+!default.xcworkspace/
+*.xcuserstate
+project.xcworkspace/xcshareddata/
+project.xcworkspace/xcuserdata/
+*.xcodeproj/xcshareddata/
+*.xcodeproj/xcuserdata/
+
+# 构建产物
+build/
+DerivedData/
+*.o
+*.os
+*.a
+*.dylib
+*.framework
+*.xcarchive
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift 相关
+.swiftpm/xcode/
+.build/
+Packages/
+*.swp
+*.swo
+.swiftlint.cache
+
+# 配置文件
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.pbxuser
+!default.pbxuser
+.DS_Store
+*.DS_Store
+.env
+.env.local
+*.log
+
+# 模拟器相关
+iphonesimulator/
+appletvsimulator/
+watchsimulator/
+tvOS/
+watchOS/
+
+# 第三方工具
+Carthage/Build/
+Pods/
+!Podfile
+!Podfile.lock
+!.swiftlint.yml
+!.gitignore

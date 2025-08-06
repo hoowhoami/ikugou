@@ -2,7 +2,7 @@
 //  Home.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/4.
+//  Created on 2025/8/4.
 //
 
 import SwiftUI
@@ -47,19 +47,55 @@ struct PlaylistCard: View {
     var body: some View {
         VStack(alignment: .leading) {
             // 封面
-            Image(song.cover)
+            Image(song.cover ?? "")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 160, height: 160)
                 .cornerRadius(8)
             
-            // 歌曲名
-            Text(song.title)
-                .font(.subheadline)
-                .lineLimit(1)
+            // 歌曲名和音质标识
+            HStack(spacing: 4) {
+                Text(song.title ?? "")
+                    .font(.subheadline)
+                    .lineLimit(1)
+                
+                // 音质标识
+                if song.isVip == true {
+                    Text("VIP")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 0.5)
+                        .background(Color.orange.opacity(0.1))
+                        .cornerRadius(2)
+                }
+                
+                if song.isSq == true {
+                    Text("SQ")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 0.5)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(2)
+                } else if song.isHq == true {
+                    Text("HQ")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 0.5)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(2)
+                }
+                
+                Spacer()
+            }
             
             // 歌手
-            Text(song.artist)
+            Text(song.artist ?? "")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

@@ -2,46 +2,47 @@
 //  PlayerView.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/4.
+//  Created on 2025/8/4.
 //
 
 import SwiftUI
 
 struct PlayerView: View {
     /// 全局播放管理器
-    @Environment(PlayerManager.self) private var playerManager
+    @Environment(PlayerService.self) private var playerService
 
     // UI 状态
     @State private var showVolumeSlider = false
     @State private var showSpeedSlider = false
     @State private var showPlaylist = false
+    @State private var showQuality = false
 
     var body: some View {
         VStack(spacing: 0) {
             // 顶部进度条
             TopProgressBarView(
                 currentTime: Binding(
-                    get: { playerManager.currentTime },
-                    set: { playerManager.seekTo(time: $0) }
+                    get: { playerService.currentTime },
+                    set: { playerService.seekTo(time: $0) }
                 ),
-                duration: playerManager.duration
+                duration: playerService.duration
             )
             // .padding(.horizontal, 16)
 
             // 主要控制区域
             HStack(spacing: 0) {
                 // 左侧：歌曲信息
-                SongInfoView(song: playerManager.currentSong)
+                SongInfoView(song: playerService.currentSong)
                     .frame(width: 200)
 
                 // 中央：播放控制（绝对居中）
                 HStack {
                     Spacer()
                     PlaybackControlsView(
-                        isPlaying: playerManager.isPlaying,
-                        onPrevious: { playerManager.playPrevious() },
-                        onPlayPause: { playerManager.togglePlayback() },
-                        onNext: { playerManager.playNext() }
+                        isPlaying: playerService.isPlaying,
+                        onPrevious: { playerService.playPrevious() },
+                        onPlayPause: { playerService.togglePlayback() },
+                        onNext: { playerService.playNext() }
                     )
                     Spacer()
                 }
@@ -49,21 +50,22 @@ struct PlayerView: View {
                 // 右侧：播放模式和设置
                 PlayerSettingsView(
                     volume: Binding(
-                        get: { playerManager.volume },
-                        set: { playerManager.setVolume($0) }
+                        get: { playerService.volume },
+                        set: { playerService.setVolume($0) }
                     ),
                     playbackSpeed: Binding(
-                        get: { playerManager.playbackSpeed },
-                        set: { playerManager.setPlaybackSpeed($0) }
+                        get: { playerService.playbackSpeed },
+                        set: { playerService.setPlaybackSpeed($0) }
                     ),
                     playMode: Binding(
-                        get: { playerManager.playMode },
-                        set: { _ in playerManager.togglePlayMode() }
+                        get: { playerService.playMode },
+                        set: { _ in playerService.togglePlayMode() }
                     ),
                     showVolumeSlider: $showVolumeSlider,
                     showSpeedSlider: $showSpeedSlider,
                     showPlaylist: $showPlaylist,
-                    playerManager: playerManager
+                    showQuality: $showQuality,
+                    playerService: playerService
                 )
                 .frame(width: 200)
             }
@@ -211,12 +213,22 @@ struct SongInfoView: View {
         HStack(spacing: 12) {
             // 封面
             if let song = song {
-                Image(song.cover)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(6)
-                    .clipped()
+                AsyncImage(url: URL(string: ImageURLHelper.processImageURL(song.cover, size: .small)?.absoluteString ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "music.note")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 16))
+                        )
+                }
+                .frame(width: 50, height: 50)
+                .cornerRadius(6)
+                .clipped()
             } else {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(Color.gray.opacity(0.3))
@@ -229,11 +241,15 @@ struct SongInfoView: View {
 
             // 歌曲信息
             VStack(alignment: .leading, spacing: 2) {
-                Text(song?.title ?? "未播放")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
-
+                HStack(spacing: 4) {
+                    Text(song?.title ?? "未播放")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                    
+                    // 下方播放器不显示音质标识
+                }
+                
                 Text(song?.artist ?? "未知歌手")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -309,7 +325,8 @@ struct PlayerSettingsView: View {
     @Binding var showVolumeSlider: Bool
     @Binding var showSpeedSlider: Bool
     @Binding var showPlaylist: Bool
-    let playerManager: PlayerManager
+    @Binding var showQuality: Bool
+    let playerService: PlayerService
 
     var body: some View {
         HStack(spacing: 16) {
@@ -400,7 +417,32 @@ struct PlayerSettingsView: View {
             }
             .buttonStyle(.plain)
             .popover(isPresented: $showPlaylist, arrowEdge: .top) {
-                PlaylistPopover(playerManager: playerManager)
+                PlaylistPopover(playerService: playerService)
+            }
+            .onHover { isHovering in
+                if isHovering {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            
+            // 音质选择按钮
+            Button(action: {
+                showQuality.toggle()
+                if showQuality {
+                    showVolumeSlider = false
+                    showSpeedSlider = false
+                    showPlaylist = false
+                }
+            }) {
+                Image(systemName: "hifispeaker")
+                    .font(.system(size: 16))
+                    .foregroundColor(showQuality ? .accentColor : .secondary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showQuality, arrowEdge: .top) {
+                QualitySelectionPopover()
             }
             .onHover { isHovering in
                 if isHovering {
@@ -484,7 +526,7 @@ struct SpeedControlPopover: View {
 
 // 播放列表弹出窗口
 struct PlaylistPopover: View {
-    let playerManager: PlayerManager
+    let playerService: PlayerService
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -496,9 +538,21 @@ struct PlaylistPopover: View {
 
                 Spacer()
 
-                Text("\(playerManager.playlist.count) 首歌曲")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 12) {
+                    Text("\(playerService.playlist.count) 首歌曲")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    // 删除全部按钮
+                    if !playerService.playlist.isEmpty {
+                        Button("删除全部") {
+                            playerService.clearPlaylist()
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .buttonStyle(.plain)
+                    }
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -509,16 +563,20 @@ struct PlaylistPopover: View {
             // 播放列表
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(Array(playerManager.playlist.enumerated()), id: \.element.id) { index, song in
+                    ForEach(Array(playerService.playlist.enumerated()), id: \.element.id) { index, song in
                         PlaylistItemView(
                             song: song,
-                            isCurrentSong: index == playerManager.currentIndex,
+                            index: index,
+                            isCurrentSong: index == playerService.currentIndex,
                             onTap: {
-                                playerManager.playSong(at: index)
+                                playerService.playSong(at: index)
+                            },
+                            onDelete: {
+                                playerService.removeSong(at: index)
                             }
                         )
 
-                        if index < playerManager.playlist.count - 1 {
+                        if index < playerService.playlist.count - 1 {
                             Divider()
                                 .padding(.leading, 56)
                         }
@@ -534,29 +592,76 @@ struct PlaylistPopover: View {
 // 播放列表项组件
 struct PlaylistItemView: View {
     let song: Song
+    let index: Int
     let isCurrentSong: Bool
     let onTap: () -> Void
+    let onDelete: () -> Void
+    @State private var isHovered = false
 
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
                 // 封面
-                Image(song.cover)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 40, height: 40)
-                    .cornerRadius(4)
-                    .clipped()
+                AsyncImage(url: URL(string: ImageURLHelper.processImageURL(song.cover, size: .small)?.absoluteString ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "music.note")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12))
+                        )
+                }
+                .frame(width: 40, height: 40)
+                .cornerRadius(4)
+                .clipped()
 
                 // 歌曲信息
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(song.title)
-                        .font(.subheadline)
-                        .fontWeight(isCurrentSong ? .medium : .regular)
-                        .foregroundColor(isCurrentSong ? .accentColor : .primary)
-                        .lineLimit(1)
+                    HStack(spacing: 4) {
+                        Text(song.title ?? "")
+                            .font(.subheadline)
+                            .fontWeight(isCurrentSong ? .medium : .regular)
+                            .foregroundColor(isCurrentSong ? .accentColor : .primary)
+                            .lineLimit(1)
+                        
+                        // 音质标识
+                        if song.isVip == true {
+                            Text("VIP")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.orange.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                        
+                        if song.isSq == true {
+                            Text("SQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        } else if song.isHq == true {
+                            Text("HQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                    }
 
-                    Text(song.artist)
+                    Text(song.artist ?? "")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
@@ -564,11 +669,30 @@ struct PlaylistItemView: View {
 
                 Spacer()
 
-                // 当前播放指示器
-                if isCurrentSong {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.caption)
-                        .foregroundColor(.accentColor)
+                // 播放按钮或当前播放指示器
+                HStack(spacing: 8) {
+                    if isCurrentSong {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 16))  // 与删除按钮大小一致
+                            .foregroundColor(.accentColor)
+                    }
+                    
+                    // 删除按钮（悬停时显示）
+                    if isHovered {
+                        Button(action: onDelete) {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -577,6 +701,118 @@ struct PlaylistItemView: View {
         }
         .buttonStyle(.plain)
         .background(isCurrentSong ? Color.accentColor.opacity(0.1) : Color.clear)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+            if hovering {
+                NSCursor.pointingHand.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+    }
+}
+
+// 音质选择弹出窗口
+struct QualitySelectionPopover: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedQuality: AudioQuality = MusicService.shared.preferredQuality
+    
+    // 常用音质选项
+    private let commonQualities: [AudioQuality] = [
+        .low, .standard, .flac, .high
+    ]
+    
+    // 魔法音乐效果
+    private let magicQualities: [AudioQuality] = [
+        .piano, .acappella, .subwoofer, .ancient, .surnay, .dj
+    ]
+    
+    // 蝰蛇音质
+    private let viperQualities: [AudioQuality] = [
+        .viperAtmos, .viperClear, .viperTape
+    ]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("音质选择")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .padding(.bottom, 4)
+            
+            // 常用音质
+            VStack(alignment: .leading, spacing: 4) {
+                Text("常用音质")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                
+                ForEach(commonQualities, id: \.self) { quality in
+                    qualityRow(quality: quality)
+                }
+            }
+            
+            Divider()
+            
+            // 蝰蛇音质
+            VStack(alignment: .leading, spacing: 4) {
+                Text("蝰蛇音质")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                
+                ForEach(viperQualities, id: \.self) { quality in
+                    qualityRow(quality: quality)
+                }
+            }
+            
+            Divider()
+            
+            // 魔法音乐
+            VStack(alignment: .leading, spacing: 4) {
+                Text("魔法音乐")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                
+                ForEach(magicQualities, id: \.self) { quality in
+                    qualityRow(quality: quality)
+                }
+            }
+        }
+        .padding(16)
+        .frame(minWidth: 220)
+    }
+    
+    @ViewBuilder
+    private func qualityRow(quality: AudioQuality) -> some View {
+        Button(action: {
+            selectedQuality = quality
+            MusicService.shared.preferredQuality = quality
+            dismiss()
+        }) {
+            HStack {
+                Circle()
+                    .fill(selectedQuality == quality ? Color.accentColor : Color.clear)
+                    .stroke(selectedQuality == quality ? Color.accentColor : Color.secondary, lineWidth: 1)
+                    .frame(width: 12, height: 12)
+                
+                Text(quality.displayName)
+                    .font(.system(size: 13))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                if quality.isSpecialEffect {
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .frame(height: 24)
+        }
+        .buttonStyle(.plain)
         .onHover { isHovering in
             if isHovering {
                 NSCursor.pointingHand.push()
@@ -589,5 +825,5 @@ struct PlaylistItemView: View {
 
 #Preview {
     PlayerView()
-        .environment(PlayerManager())
+        .environment(PlayerService.shared)
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+
 /// 网络错误类型
 enum NetworkError: Error, LocalizedError {
     case invalidURL
@@ -52,12 +53,14 @@ class NetworkService {
     var userAuth: UserAuth?
     
     /// URLSession
-    private let session: URLSession
+    var session: URLSession!
     
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 10.0
-        config.timeoutIntervalForResource = 30.0
+        config.timeoutIntervalForRequest = 30.0
+        config.timeoutIntervalForResource = 60.0
+        
+        // 使用默认配置，依赖Info.plist的ATS设置
         self.session = URLSession(configuration: config)
     }
     
@@ -105,43 +108,81 @@ class NetworkService {
         request: URLRequest,
         responseType: T.Type
     ) async throws -> T {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
         do {
-            // 调试输出：请求信息
-            print("📡 Request: \(request.url?.absoluteString ?? "unknown")")
-            
             let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NetworkError.networkError(URLError(.badServerResponse))
             }
             
-            // 调试输出：响应状态码
-            print("📡 Response Status: \(httpResponse.statusCode)")
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            let statusIcon = 200...299 ~= httpResponse.statusCode ? "✅" : "❌"
             
             guard 200...299 ~= httpResponse.statusCode else {
+                // 打印失败请求的完整信息
+                let responseBody = String(data: data, encoding: .utf8) ?? "N/A"
+                print("""
+                🌐 ═══════════════════════════════════════════════════════════════
+                \(statusIcon) \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")
+                📊 Status: \(httpResponse.statusCode) | ⏱️ Duration: \(String(format: "%.2f", duration * 1000))ms
+                📄 Response: \(responseBody)
+                ═══════════════════════════════════════════════════════════════
+                """)
                 throw NetworkError.serverError(httpResponse.statusCode)
             }
             
             guard !data.isEmpty else {
+                print("""
+                🌐 ═══════════════════════════════════════════════════════════════
+                \(statusIcon) \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")
+                📊 Status: \(httpResponse.statusCode) | ⏱️ Duration: \(String(format: "%.2f", duration * 1000))ms
+                📄 Response: Empty Data
+                ═══════════════════════════════════════════════════════════════
+                """)
                 throw NetworkError.noData
-            }
-            
-            // 调试输出：响应数据
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("📡 Response Data: \(jsonString)")
             }
             
             do {
                 let decodedResponse = try JSONDecoder().decode(T.self, from: data)
+                
+                // 打印成功请求的简洁信息
+                let responsePreview = String(data: data, encoding: .utf8)?.prefix(200) ?? "N/A"
+                print("""
+                🌐 ═══════════════════════════════════════════════════════════════
+                \(statusIcon) \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")
+                📊 Status: \(httpResponse.statusCode) | ⏱️ Duration: \(String(format: "%.2f", duration * 1000))ms
+                📄 Response: \(responsePreview)\(data.count > 200 ? "..." : "")
+                ═══════════════════════════════════════════════════════════════
+                """)
+                
                 return decodedResponse
             } catch {
-                print("❌ Decoding error: \(error)")
-                print("❌ Response data: \(String(data: data, encoding: .utf8) ?? "nil")")
+                // 打印解码错误的详细信息
+                let responseBody = String(data: data, encoding: .utf8) ?? "N/A"
+                print("""
+                🌐 ═══════════════════════════════════════════════════════════════
+                ❌ \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")
+                📊 Status: \(httpResponse.statusCode) | ⏱️ Duration: \(String(format: "%.2f", duration * 1000))ms
+                🚫 Decoding Error: \(error.localizedDescription)
+                📄 Response: \(responseBody)
+                ═══════════════════════════════════════════════════════════════
+                """)
                 throw NetworkError.decodingError
             }
         } catch let error as NetworkError {
             throw error
         } catch {
+            // 打印网络错误信息
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            print("""
+            🌐 ═══════════════════════════════════════════════════════════════
+            ❌ \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "unknown")
+            🚫 Network Error: \(error.localizedDescription)
+            ⏱️ Duration: \(String(format: "%.2f", duration * 1000))ms
+            ═══════════════════════════════════════════════════════════════
+            """)
             throw NetworkError.networkError(error)
         }
     }
@@ -236,3 +277,4 @@ extension NetworkService {
         self.userAuth = nil
     }
 }
+

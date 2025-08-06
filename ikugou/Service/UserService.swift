@@ -33,9 +33,42 @@ class UserService {
         }
     }
     
+    /// 用户VIP信息
+    var vipInfo: UserVipResponse.UserVipData? {
+        didSet {
+            // 保存VIP信息到本地存储
+            if let vipInfo = vipInfo {
+                if let encoded = try? JSONEncoder().encode(vipInfo) {
+                    UserDefaults.standard.set(encoded, forKey: "vipInfo")
+                }
+            } else {
+                UserDefaults.standard.removeObject(forKey: "vipInfo")
+            }
+        }
+    }
+    
+    /// 用户详细信息
+    var userDetail: UserDetailResponse.UserDetailData? {
+        didSet {
+            // 保存用户详细信息到本地存储
+            if let userDetail = userDetail {
+                if let encoded = try? JSONEncoder().encode(userDetail) {
+                    UserDefaults.standard.set(encoded, forKey: "userDetail")
+                }
+            } else {
+                UserDefaults.standard.removeObject(forKey: "userDetail")
+            }
+        }
+    }
+    
     /// 是否已登录
     var isLoggedIn: Bool {
         return currentUser != nil
+    }
+    
+    /// 是否为VIP用户
+    var isVipUser: Bool {
+        return vipInfo?.busi_vip?.first?.is_vip == 1
     }
     
     private init() {
@@ -52,12 +85,24 @@ class UserService {
             self.currentUser = user
             NetworkService.shared.setUserAuth(token: user.token, userid: String(user.userid))
         }
+        
+        // 加载VIP信息
+        if let vipData = UserDefaults.standard.data(forKey: "vipInfo"),
+           let vip = try? JSONDecoder().decode(UserVipResponse.UserVipData.self, from: vipData) {
+            self.vipInfo = vip
+        }
+        
+        // 加载用户详细信息
+        if let userDetailData = UserDefaults.standard.data(forKey: "userDetail"),
+           let detail = try? JSONDecoder().decode(UserDetailResponse.UserDetailData.self, from: userDetailData) {
+            self.userDetail = detail
+        }
     }
     
-    /// 登录（设置基础用户信息）
-    func login(userid: String, token: String, username: String? = nil, avatar: String? = nil) {
-        // 将HTTP头像URL转换为HTTPS以符合ATS要求
-        let secureAvatar = avatar?.replacingOccurrences(of: "http://", with: "https://")
+    /// 设置基础用户信息
+    func setUserInfo(userid: String, token: String, username: String? = nil, avatar: String? = nil) {
+        // 处理头像URL，确保使用HTTPS并处理尺寸占位符
+        let secureAvatar = ImageURLHelper.processImageURL(avatar, size: .medium)?.absoluteString
         
         let newUser = User(
             userid: Int(userid) ?? 0,
@@ -67,7 +112,6 @@ class UserService {
             avatar: secureAvatar
         )
         
-        print("UserService.login - 设置基础用户信息: \(newUser)")
         self.currentUser = newUser
     }
     
@@ -75,9 +119,9 @@ class UserService {
     func updateUserInfo(dfid: String? = nil, userDetail: UserDetailResponse.UserDetailData? = nil, vipInfo: UserVipResponse.UserVipData? = nil) {
         guard let user = currentUser else { return }
         
-        // 处理头像URL，确保使用HTTPS
+        // 处理头像URL，确保使用HTTPS并处理尺寸占位符
         let avatarURL = userDetail?.pic ?? user.avatar
-        let secureAvatar = avatarURL?.replacingOccurrences(of: "http://", with: "https://")
+        let secureAvatar = ImageURLHelper.processImageURL(avatarURL, size: .medium)?.absoluteString
         
         // 创建更新后的用户信息
         let updatedUser = User(
@@ -88,17 +132,67 @@ class UserService {
             avatar: secureAvatar
         )
         
-        print("UserService.updateUserInfo - 更新完整用户信息")
         self.currentUser = updatedUser
+        
+        // 更新VIP信息
+        if let vipInfo = vipInfo {
+            self.vipInfo = vipInfo
+        }
+        
+        // 更新用户详细信息
+        if let userDetail = userDetail {
+            self.userDetail = userDetail
+        }
     }
     
-    /// 登出
-    func logout() {
-        print("UserService.logout - 用户登出")
+    /// 清除用户登录状态
+    func clearUserSession() {
         self.currentUser = nil
+        self.vipInfo = nil
+        self.userDetail = nil
     }
     
     // MARK: - 基础用户信息API
+    
+    /// 刷新登录token
+    func refreshToken() async throws -> User {
+        guard currentUser != nil else {
+            throw UserServiceError.userNotLoggedIn
+        }
+        
+        do {
+            let response: TokenRefreshResponse = try await networkService.get(
+                endpoint: "/login/token",
+                responseType: TokenRefreshResponse.self
+            )
+            
+            if response.status == 1, let refreshedUser = response.data {
+                // 处理头像URL，确保使用HTTPS并处理尺寸占位符
+                let secureAvatar = ImageURLHelper.processImageURL(refreshedUser.avatar, size: .medium)?.absoluteString
+                
+                // 创建更新后的用户信息（保持HTTPS头像）
+                let updatedUser = User(
+                    userid: refreshedUser.userid,
+                    username: refreshedUser.username,
+                    nickname: refreshedUser.nickname,
+                    token: refreshedUser.token,
+                    avatar: secureAvatar
+                )
+                
+                self.currentUser = updatedUser
+                
+                return refreshedUser
+            } else {
+                throw UserServiceError.serverError(response.error_code, "刷新token失败")
+            }
+        } catch let error as NetworkError {
+            throw UserServiceError.networkError(error.localizedDescription)
+        } catch let error as UserServiceError {
+            throw error
+        } catch {
+            throw UserServiceError.unknownError
+        }
+    }
     
     /// 获取设备ID (dfid)
     func getDfid() async throws -> String {
@@ -108,10 +202,10 @@ class UserService {
                 responseType: DeviceRegisterResponse.self
             )
             
-            if response.status == 1, let data = response.data {
-                return data.dfid
+            if response.status == 1, let data = response.data, let dfid = data.dfid {
+                return dfid
             } else {
-                throw UserServiceError.serverError(response.error_code, "获取设备ID失败")
+                throw UserServiceError.serverError(response.error_code ?? -1, "获取设备ID失败")
             }
         } catch let error as NetworkError {
             throw UserServiceError.networkError(error.localizedDescription)
@@ -166,7 +260,40 @@ class UserService {
         }
     }
     
+    
+    
+    
+    
     // MARK: - 组合方法
+    
+    /// app启动时自动刷新token和用户信息
+    func autoRefreshOnAppLaunch() async {
+        guard isLoggedIn else {
+            return
+        }
+        
+        do {
+            let _ = try await refreshToken()
+            
+            // 2. 并行获取详细信息（userdetail, vipdetail, dfid）
+            async let dfidTask = getDfid()
+            async let userDetailTask = getUserDetail()
+            async let vipInfoTask = getUserVipDetail()
+            
+            let (dfid, userDetail, vipInfo) = try await (dfidTask, userDetailTask, vipInfoTask)
+            
+            // 3. 更新用户详细信息
+            updateUserInfo(
+                dfid: dfid,
+                userDetail: userDetail,
+                vipInfo: vipInfo
+            )
+        } catch {
+            if case UserServiceError.serverError(let code, _) = error, code == 401 {
+                clearUserSession()
+            }
+        }
+    }
     
     /// 获取完整用户信息（登录成功后调用）
     func fetchCompleteUserInfo() async throws -> (dfid: String, userDetail: UserDetailResponse.UserDetailData, vipInfo: UserVipResponse.UserVipData) {
@@ -196,9 +323,7 @@ class UserService {
                 vipInfo: vipInfo
             )
             
-            print("✅ 用户信息刷新成功")
         } catch {
-            print("❌ 刷新用户信息失败: \(error)")
             throw error
         }
     }
@@ -210,8 +335,8 @@ class UserService {
         let username = userInfo.username.isEmpty ? userInfo.nickname : userInfo.username
         let avatar = userInfo.avatar
         
-        // 基础登录（已经包含HTTPS转换）
-        login(
+        // 设置基础用户信息（已经包含HTTPS转换）
+        setUserInfo(
             userid: userid,
             token: token,
             username: username,
@@ -229,9 +354,7 @@ class UserService {
                 vipInfo: vipInfo
             )
             
-            print("✅ 完整登录流程完成 - DFID: \(dfid)")
         } catch {
-            print("⚠️ 获取额外用户信息失败，但基础登录已完成: \(error)")
             // 即使获取额外信息失败，基础登录仍然有效
         }
     }

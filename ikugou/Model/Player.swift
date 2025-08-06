@@ -2,7 +2,7 @@
 //  Player.swift
 //  ikugou
 //
-//  Created by 蒋梁通 on 2025/8/5.
+//  Created on 2025/8/5.
 //
 import SwiftUI
 

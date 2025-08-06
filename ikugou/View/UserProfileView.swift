@@ -68,15 +68,18 @@ struct UserProfileView: View {
                         
                         // 基本信息
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(userInfo.nickname.isEmpty ? userInfo.username : userInfo.nickname)
-                                .font(.title2)
-                                .fontWeight(.semibold)
+                            HStack(spacing: 8) {
+                                Text(userInfo.nickname.isEmpty ? userInfo.username : userInfo.nickname)
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                
+                                Image(userService.isVipUser ? "vip-card-open" : "vip-card-close")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 20, height: 20)
+                            }
                             
-                            Text("用户名: \(userInfo.username)")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                            
-                            Text("用户ID: \(userInfo.userid)")
+                            Text("用户ID: \(String(userInfo.userid))")
                                 .font(.body)
                                 .foregroundColor(.secondary)
                         }
@@ -90,47 +93,24 @@ struct UserProfileView: View {
                             .fill(Color(NSColor.controlBackgroundColor))
                     )
                     
-                    // 详细信息卡片
+                    // 详细信息
                     VStack(alignment: .leading, spacing: 16) {
                         Text("详细信息")
                             .font(.headline)
                             .fontWeight(.semibold)
                         
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: 16) {
-                            // 注册时间
-                            if let regTime = userInfo.reg_time {
-                                InfoCard(title: "注册时间", value: formatDate(regTime))
-                            }
-                            
-                            // 服务器时间
-                            if let serverTime = userInfo.servertime {
-                                InfoCard(title: "最后登录", value: formatDate(serverTime))
-                            }
-                            
-                            // VIP状态
-                            if let isVip = userInfo.is_vip {
-                                InfoCard(title: "VIP状态", value: isVip > 0 ? "是" : "否")
-                            }
-                            
-                            // 用户类型
-                            if let userType = userInfo.user_type {
-                                InfoCard(title: "用户类型", value: "\(userType)")
-                            }
-                            
-                            // 积分
-                            if let score = userInfo.score {
-                                InfoCard(title: "积分", value: "\(score)")
-                            }
-                            
-                            // 经验值
-                            if let exp = userInfo.exp {
-                                InfoCard(title: "经验值", value: "\(exp)")
-                            }
+                        // IP属地
+                        if let loc = userService.userDetail?.loc, !loc.isEmpty {
+                            Text("IP属地: \(loc)")
+                                .font(.body)
+                                .foregroundColor(.primary)
+                        } else {
+                            Text("IP属地: 未知")
+                                .font(.body)
+                                .foregroundColor(.primary)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 16)
                     .padding(.horizontal, 20)
                     .background(
@@ -188,7 +168,7 @@ struct UserProfileView: View {
         .alert("确认注销", isPresented: $showLogoutConfirmation) {
             Button("取消", role: .cancel) { }
             Button("注销", role: .destructive) {
-                userService.logout()
+                userService.clearUserSession()
             }
         } message: {
             Text("确定要注销登录吗？")
@@ -206,7 +186,6 @@ struct UserProfileView: View {
             do {
                 try await UserService.shared.refreshUserInfo()
             } catch {
-                print("刷新用户信息失败: \(error)")
             }
         }
     }
