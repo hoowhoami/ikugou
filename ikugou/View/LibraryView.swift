@@ -23,6 +23,7 @@ struct LibraryView: View {
                     // 显示歌单详情页
                     PlaylistDetailView(
                         playlist: playlist,
+                        sourceSection: selectedSection,
                         onBack: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 showingPlaylistDetail = false
@@ -115,12 +116,9 @@ struct LibraryView: View {
 
 /// 乐库分类枚举
 enum LibrarySection: String, CaseIterable {
-    case myCreatedPlaylists = "我创建的歌单"
-    case myCollectedPlaylists = "我收藏的歌单"
-    case myCollectedAlbums = "我收藏的专辑"
-    case myFollowedArtists = "我关注的歌手"
-    case myFollowedFriends = "我关注的好友"
-    case myListenedSongs = "我听过的歌曲"
+    case myCreatedPlaylists = "创建的歌单"
+    case myCollectedPlaylists = "收藏的歌单"
+    case myCollectedAlbums = "收藏的专辑"
     
     var icon: String {
         switch self {
@@ -130,12 +128,6 @@ enum LibrarySection: String, CaseIterable {
             return "heart.text.square"
         case .myCollectedAlbums:
             return "opticaldisc"
-        case .myFollowedArtists:
-            return "mic"
-        case .myFollowedFriends:
-            return "person.2"
-        case .myListenedSongs:
-            return "clock"
         }
     }
 }
@@ -145,6 +137,7 @@ struct LibraryContentView: View {
     let section: LibrarySection
     let onPlaylistTapped: ((UserPlaylistResponse.UserPlaylist) -> Void)?
     @State private var libraryService = LibraryService.shared
+    @State private var isRefreshing = false
     
     init(section: LibrarySection, onPlaylistTapped: ((UserPlaylistResponse.UserPlaylist) -> Void)? = nil) {
         self.section = section
@@ -163,15 +156,25 @@ struct LibraryContentView: View {
                 
                 // 刷新按钮
                 Button(action: {
-                    Task {
-                        await refreshContent()
+                    if !isRefreshing {
+                        Task {
+                            isRefreshing = true
+                            await refreshContent()
+                            isRefreshing = false
+                        }
                     }
                 }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 16))
-                        .foregroundColor(.secondary)
+                    if isRefreshing {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
                 }
                 .buttonStyle(.plain)
+                .disabled(isRefreshing)
                 .help("刷新")
             }
             .padding(.horizontal, 16)
@@ -185,40 +188,33 @@ struct LibraryContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     switch section {
-                    case .myListenedSongs:
-                        ListenHistoryContentView()
-                            .padding(.horizontal, 24)
-                            .padding(.top, 20)
                     case .myCreatedPlaylists:
-                        MyCreatedPlaylistsContentView(onPlaylistTapped: onPlaylistTapped)
+                        PlaylistsContentView(contentType: .userCreatedPlaylists, onPlaylistTapped: onPlaylistTapped)
                             .padding(.horizontal, 0)
                             .padding(.top, 20)
                     case .myCollectedPlaylists:
-                        MyCollectedPlaylistsContentView()
-                            .padding(.horizontal, 24)
+                        PlaylistsContentView(contentType: .collectedPlaylists, onPlaylistTapped: onPlaylistTapped)
+                            .padding(.horizontal, 0)
                             .padding(.top, 20)
                     case .myCollectedAlbums:
-                        MyCollectedAlbumsContentView()
-                            .padding(.horizontal, 24)
+                        PlaylistsContentView(contentType: .collectedAlbums, onPlaylistTapped: onPlaylistTapped)
+                            .padding(.horizontal, 0)
                             .padding(.top, 20)
-                    case .myFollowedArtists:
-                        MyFollowedArtistsContentView()
-                            .padding(.horizontal, 24)
-                            .padding(.top, 20)
-                    case .myFollowedFriends:
-                        MyFollowedFriendsContentView()
-                            .padding(.horizontal, 24)
-                            .padding(.top, 20)
+                    }
+                }
+            }
+            .onAppear {
+                if libraryService.userCreatedPlaylists.isEmpty && 
+                   libraryService.collectedPlaylists.isEmpty && 
+                   libraryService.collectedAlbums.isEmpty &&
+                   !libraryService.isLoadingMyPlaylists {
+                    Task {
+                        await loadContent()
                     }
                 }
             }
         }
         .background(Color.clear)
-        .onAppear {
-            Task {
-                await loadContent()
-            }
-        }
     }
     
     private func refreshContent() async {
@@ -227,15 +223,8 @@ struct LibraryContentView: View {
     
     private func loadContent() async {
         switch section {
-        case .myListenedSongs:
-            await libraryService.getListenHistory()
-        case .myCreatedPlaylists, .myCollectedPlaylists:
-            await libraryService.getMyPlaylists()
-        case .myFollowedArtists, .myFollowedFriends:
-            await libraryService.getFollowData()
-        case .myCollectedAlbums:
-            // TODO: 实现获取收藏专辑的逻辑
-            break
+        case .myCreatedPlaylists, .myCollectedPlaylists, .myCollectedAlbums:
+            await libraryService.getAllPlaylistsData()
         }
     }
 }
@@ -244,20 +233,37 @@ struct LibraryContentView: View {
     LibraryView()
 }
 
-// MARK: - 临时占位符视图组件
+// MARK: - 统一的播放列表内容视图
 
-struct MyCreatedPlaylistsContentView: View {
+struct PlaylistsContentView: View {
     @State private var libraryService = LibraryService.shared
+    let contentType: LibraryContentType
     let onPlaylistTapped: ((UserPlaylistResponse.UserPlaylist) -> Void)?
     
-    init(onPlaylistTapped: ((UserPlaylistResponse.UserPlaylist) -> Void)? = nil) {
+    init(contentType: LibraryContentType, onPlaylistTapped: ((UserPlaylistResponse.UserPlaylist) -> Void)? = nil) {
+        self.contentType = contentType
         self.onPlaylistTapped = onPlaylistTapped
     }
     
     // 将歌单分组，每行4个
     private var chunkedPlaylists: [[UserPlaylistResponse.UserPlaylist]] {
         let itemsPerRow = 4
-        return libraryService.myPlaylists.chunked(into: itemsPerRow)
+        return libraryService.getPlaylistsByType(contentType).chunked(into: itemsPerRow)
+    }
+    
+    private var playlists: [UserPlaylistResponse.UserPlaylist] {
+        return libraryService.getPlaylistsByType(contentType)
+    }
+    
+    private var emptyStateConfig: (icon: String, title: String, subtitle: String) {
+        switch contentType {
+        case .userCreatedPlaylists:
+            return ("music.note.list", "暂无歌单", "创建您的第一个歌单")
+        case .collectedPlaylists:
+            return ("heart.text.square", "暂无收藏歌单", "去收藏您喜欢的歌单")
+        case .collectedAlbums:
+            return ("opticaldisc", "暂无收藏专辑", "去收藏您喜欢的专辑")
+        }
     }
     
     var body: some View {
@@ -284,21 +290,21 @@ struct MyCreatedPlaylistsContentView: View {
                         .multilineTextAlignment(.center)
                     Button("重试") {
                         Task {
-                            await libraryService.getMyPlaylists()
+                            await libraryService.getAllPlaylistsData()
                         }
                     }
                     .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if libraryService.myPlaylists.isEmpty {
+            } else if playlists.isEmpty {
                 VStack(spacing: 12) {
-                    Image(systemName: "music.note.list")
+                    Image(systemName: emptyStateConfig.icon)
                         .font(.system(size: 48))
                         .foregroundColor(.secondary)
-                    Text("暂无歌单")
+                    Text(emptyStateConfig.title)
                         .font(.headline)
                         .foregroundColor(.secondary)
-                    Text("创建您的第一个歌单")
+                    Text(emptyStateConfig.subtitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -316,11 +322,6 @@ struct MyCreatedPlaylistsContentView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-            }
-        }
-        .onAppear {
-            Task {
-                await libraryService.getMyPlaylists()
             }
         }
     }
@@ -356,6 +357,7 @@ struct PlaylistCardView: View {
                 }
                 .frame(width: 100, height: 100)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(.top, 8)
                 
                 // 歌单信息
                 VStack(alignment: .leading, spacing: 3) {
@@ -379,46 +381,15 @@ struct PlaylistCardView: View {
     }
     
     private var imageURL: URL? {
-        guard let pic = playlist.pic, !pic.isEmpty else { 
-            // 尝试使用create_user_pic作为备用
-            guard let userPic = playlist.create_user_pic, !userPic.isEmpty else { return nil }
-            return ImageURLHelper.processImageURL(userPic, size: .small)
+        guard let pic = playlist.pic, !pic.isEmpty else {
+            // 创建的歌单，不展示封面
+            return nil
         }
         return ImageURLHelper.processImageURL(pic, size: .small)
     }
 }
 
-struct MyCollectedPlaylistsContentView: View {
-    var body: some View {
-        Text("我收藏的歌单")
-            .font(.title2)
-            .foregroundColor(.secondary)
-    }
-}
 
-struct MyCollectedAlbumsContentView: View {
-    var body: some View {
-        Text("我收藏的专辑")
-            .font(.title2)
-            .foregroundColor(.secondary)
-    }
-}
-
-struct MyFollowedArtistsContentView: View {
-    var body: some View {
-        Text("我关注的歌手")
-            .font(.title2)
-            .foregroundColor(.secondary)
-    }
-}
-
-struct MyFollowedFriendsContentView: View {
-    var body: some View {
-        Text("我关注的好友")
-            .font(.title2)
-            .foregroundColor(.secondary)
-    }
-}
 
 // MARK: - Array 扩展
 
@@ -434,12 +405,14 @@ extension Array {
 
 struct PlaylistDetailView: View {
     let playlist: UserPlaylistResponse.UserPlaylist
+    let sourceSection: LibrarySection
     let onBack: () -> Void
     @State private var libraryService = LibraryService.shared
     @State private var playlistDetail: PlaylistDetailInfo?
     @State private var tracks: [PlaylistTrackInfo] = []
     @State private var isLoadingDetail = false
     @State private var isLoadingTracks = false
+    @State private var isRefreshing = false
     @State private var errorMessage: String?
     @State private var isSelectionMode = false
     @State private var selectedTracks: Set<UUID> = []
@@ -462,20 +435,34 @@ struct PlaylistDetailView: View {
                 
                 Spacer()
                 
-                Text(playlist.name ?? "歌单")
+                Text(sourceSection.rawValue)
                     .font(.title)
                     .fontWeight(.semibold)
                 
                 Spacer()
                 
-                // 占位符，保持标题居中
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                    Text("返回")
-                        .font(.system(size: 16))
+                // 刷新按钮
+                Button(action: {
+                    if !isRefreshing {
+                        Task {
+                            isRefreshing = true
+                            await loadPlaylistData()
+                            isRefreshing = false
+                        }
+                    }
+                }) {
+                    if isRefreshing {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
                 }
-                .foregroundColor(.clear)
+                .buttonStyle(.plain)
+                .disabled(isRefreshing)
+                .help("刷新歌单")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
@@ -550,12 +537,11 @@ struct PlaylistDetailView: View {
                     .font(.title)
                     .fontWeight(.bold)
                 
-                if let intro = detail.intro, !intro.isEmpty {
-                    Text(intro)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .lineLimit(3)
-                }
+                // 简介
+                Text(detail.intro ?? "")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(detail.count ?? 0) 首歌曲")
@@ -597,11 +583,14 @@ struct PlaylistDetailView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(Color.accentColor)
-                        .cornerRadius(20)
+                        .background(tracks.isEmpty ? Color.gray : Color.accentColor)
+                        .cornerRadius(10)
                     }
                     .buttonStyle(.plain)
+                    .disabled(tracks.isEmpty)
+                    .offset(y: -2)
                 }
+                
             }
             
             Spacer()
@@ -616,28 +605,41 @@ struct PlaylistDetailView: View {
             HStack {
                 if isSelectionMode {
                     HStack(spacing: 16) {
-                        Button(selectedTracks.count == tracks.count ? "全选" : "取消") {
+                        // 全选复选框
+                        Button(action: {
                             if selectedTracks.count == tracks.count {
+                                // 全部选中 -> 全部取消
                                 selectedTracks.removeAll()
                             } else {
-                                isSelectionMode = false
-                                selectedTracks.removeAll()
-                            }
-                        }
-                        .font(.headline)
-                        .foregroundColor(.accentColor)
-                        
-                        Button(selectedTracks.isEmpty ? "全选" : "全取消") {
-                            if selectedTracks.isEmpty {
-                                // 全选所有歌曲
+                                // 部分选中或未选中 -> 全选
                                 selectedTracks = Set(tracks.map { $0.id })
-                            } else {
-                                // 全取消
-                                selectedTracks.removeAll()
+                            }
+                        }) {
+                            HStack(spacing: 8) {
+                                // 根据选中状态显示不同的复选框
+                                if selectedTracks.isEmpty {
+                                    // 全部未选中
+                                    Image(systemName: "square")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.secondary)
+                                } else if selectedTracks.count == tracks.count {
+                                    // 全部选中
+                                    Image(systemName: "checkmark.square.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.accentColor)
+                                } else {
+                                    // 部分选中 (indeterminate状态)
+                                    Image(systemName: "minus.square.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.accentColor)
+                                }
+                                
+                                Text("全选")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
                             }
                         }
-                        .font(.headline)
-                        .foregroundColor(.accentColor)
+                        .buttonStyle(.plain)
                         
                         Text("已选择 \(selectedTracks.count) 首歌曲")
                             .font(.headline)
@@ -681,9 +683,17 @@ struct PlaylistDetailView: View {
                                 .cornerRadius(8)
                             }
                         }
+                        
+                        // 取消按钮放在右边
+                        Button("取消") {
+                            isSelectionMode = false
+                            selectedTracks.removeAll()
+                        }
+                        .font(.headline)
+                        .foregroundColor(.accentColor)
                     }
                 } else {
-                    Text("歌曲")
+                    Text("歌曲列表")
                         .font(.headline)
                         .fontWeight(.semibold)
                     
@@ -693,16 +703,11 @@ struct PlaylistDetailView: View {
                         Button(action: {
                             isSelectionMode = true
                         }) {
-                            Text("批量选择")
-                                .font(.subheadline)
+                            Text("批量操作")
+                                .font(.headline)
                                 .foregroundColor(.accentColor)
                         }
                         .buttonStyle(.plain)
-                        
-                        if isLoadingTracks {
-                            ProgressView()
-                                .controlSize(.small)
-                        }
                     }
                 }
             }
@@ -735,20 +740,14 @@ struct PlaylistDetailView: View {
                                     } else {
                                         selectedTracks.insert(trackId)
                                     }
+                                },
+                                onPlayTapped: {
+                                    if !isSelectionMode {
+                                        let song = Song(from: track)
+                                        playerService.playSong(song)
+                                    }
                                 }
                             )
-                            .onTapGesture {
-                                if isSelectionMode {
-                                    if selectedTracks.contains(track.id) {
-                                        selectedTracks.remove(track.id)
-                                    } else {
-                                        selectedTracks.insert(track.id)
-                                    }
-                                } else {
-                                    let song = Song(from: track)
-                                    playerService.playSong(song)
-                                }
-                            }
                         }
                     }
                 }
@@ -770,7 +769,22 @@ struct PlaylistDetailView: View {
     }
     
     private func loadPlaylistData() async {
-        guard let globalCollectionId = playlist.global_collection_id else { return }
+        // 判断是否为收藏的歌单：创建者不是当前用户
+        let currentUserId = UserService.shared.currentUser?.userid
+        let isCollectedPlaylist = playlist.list_create_userid != currentUserId
+        
+        // 收藏的歌单使用list_create_gid，创建的歌单使用global_collection_id
+        let playlistId: String
+        if isCollectedPlaylist, let listCreateGid = playlist.list_create_gid {
+            playlistId = listCreateGid
+        } else if let globalCollectionId = playlist.global_collection_id {
+            playlistId = globalCollectionId
+        } else {
+            await MainActor.run {
+                self.errorMessage = "无法获取歌单ID"
+            }
+            return
+        }
         
         await MainActor.run {
             isLoadingDetail = true
@@ -780,7 +794,7 @@ struct PlaylistDetailView: View {
         
         do {
             // 获取歌单详情
-            let detail = try await libraryService.getPlaylistDetail(globalCollectionId: globalCollectionId)
+            let detail = try await libraryService.getPlaylistDetail(globalCollectionId: playlistId)
             
             // 获取所有页的歌曲列表
             var allTracks: [PlaylistTrackInfo] = []
@@ -790,7 +804,7 @@ struct PlaylistDetailView: View {
             // 持续获取页面直到没有更多数据
             while true {
                 let trackList = try await libraryService.getPlaylistTracks(
-                    globalCollectionId: globalCollectionId, 
+                    globalCollectionId: playlistId, 
                     page: currentPage, 
                     pageSize: pageSize
                 )
@@ -833,26 +847,28 @@ struct PlaylistTrackRow: View {
     let isSelectionMode: Bool
     let isSelected: Bool
     let onSelectionToggle: ((UUID) -> Void)?
+    let onPlayTapped: (() -> Void)?
     @State private var showingMoreOptions = false
     @Environment(PlayerService.self) private var playerService
     
-    init(track: PlaylistTrackInfo, index: Int, isSelectionMode: Bool = false, isSelected: Bool = false, onSelectionToggle: ((UUID) -> Void)? = nil) {
+    init(track: PlaylistTrackInfo, index: Int, isSelectionMode: Bool = false, isSelected: Bool = false, onSelectionToggle: ((UUID) -> Void)? = nil, onPlayTapped: (() -> Void)? = nil) {
         self.track = track
         self.index = index
         self.isSelectionMode = isSelectionMode
         self.isSelected = isSelected
         self.onSelectionToggle = onSelectionToggle
+        self.onPlayTapped = onPlayTapped
     }
     
     var body: some View {
         HStack(spacing: 12) {
             if isSelectionMode {
-                // 选择框
+                // 复选框
                 Button(action: {
                     onSelectionToggle?(track.id)
                 }) {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 20))
+                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 18))
                         .foregroundColor(isSelected ? .accentColor : .secondary)
                 }
                 .buttonStyle(.plain)
@@ -864,68 +880,75 @@ struct PlaylistTrackRow: View {
                     .frame(width: 30, alignment: .trailing)
             }
             
-            // 歌曲封面
-            AsyncImage(url: albumImageURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .overlay(
-                        Image(systemName: "music.note")
-                            .foregroundColor(.gray)
-                            .font(.system(size: 12))
-                    )
-            }
-            .frame(width: 40, height: 40)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            
-            // 歌曲信息
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    // 使用统一的歌曲名称处理逻辑
-                    Text(songTitle)
-                        .font(.system(size: 14, weight: .medium))
-                        .lineLimit(1)
-                    
-                    // 音质标识
-                    if track.privilege == 10 {
-                        Text("VIP")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 0.5)
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(2)
-                    }
-                    
-                    if let relateGoods = track.relate_goods, relateGoods.count > 2 {
-                        Text("SQ")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.blue)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 0.5)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(2)
-                    } else if let relateGoods = track.relate_goods, relateGoods.count > 1 {
-                        Text("HQ")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.blue)
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 0.5)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(2)
-                    }
+            // 可点击的播放区域：从封面到歌曲信息
+            HStack(spacing: 12) {
+                // 歌曲封面
+                AsyncImage(url: albumImageURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .overlay(
+                            Image(systemName: "music.note")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12))
+                        )
                 }
+                .frame(width: 40, height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
                 
-                Text(track.singername ?? "未知歌手")
-                    .font(.system(size: 13))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                // 歌曲信息
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        // 使用统一的歌曲名称处理逻辑
+                        Text(songTitle)
+                            .font(.system(size: 14, weight: .medium))
+                            .lineLimit(1)
+                        
+                        // 音质标识
+                        if track.privilege == 10 {
+                            Text("VIP")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.orange.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                        
+                        if let relateGoods = track.relate_goods, relateGoods.count > 2 {
+                            Text("SQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        } else if let relateGoods = track.relate_goods, relateGoods.count > 1 {
+                            Text("HQ")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 0.5)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(2)
+                        }
+                    }
+                    
+                    Text(track.singername ?? "未知歌手")
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onPlayTapped?()
             }
             
             Spacer()
@@ -946,7 +969,6 @@ struct PlaylistTrackRow: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
         .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
-        .contentShape(Rectangle())
     }
     
     private var albumImageURL: URL? {

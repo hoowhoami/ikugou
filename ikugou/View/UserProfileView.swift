@@ -27,8 +27,14 @@ struct UserProfileView: View {
                     if userService.isLoggedIn {
                         Button(action: refreshUserInfo) {
                             HStack {
-                                Image(systemName: "arrow.clockwise")
-                                Text("刷新")
+                                if isRefreshing {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.secondary)
+                                }
                             }
                             .font(.caption)
                             .foregroundColor(.blue)
@@ -72,11 +78,12 @@ struct UserProfileView: View {
                                 Text(userInfo.nickname.isEmpty ? userInfo.username : userInfo.nickname)
                                     .font(.title2)
                                     .fontWeight(.semibold)
-                                
-                                Image(userService.isVipUser ? "vip-card-open" : "vip-card-close")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 20, height: 20)
+                                if userService.isVipUser {
+                                    Image("vip-open")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 25, height: 25)
+                                }
                             }
                             
                             Text("用户ID: \(String(userInfo.userid))")

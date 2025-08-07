@@ -64,7 +64,7 @@ enum SettingsTab: String, CaseIterable {
     var title: String {
         switch self {
         case .appearance: return "外观"
-        case .api: return "接口设置"
+        case .api: return "接口"
         case .about: return "关于"
         }
     }

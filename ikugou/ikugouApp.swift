@@ -25,42 +25,19 @@ struct ikugouApp: App {
     
     
     var body: some Scene {
-        WindowGroup {
+        Window("ikugou", id: "main") {
             MainView()
                 .environment(playerService)
                 .environment(appSetting)
                 .environment(userService)
-                .onAppear {
-                    configureWindow()
-                    
-                    // app启动时自动刷新token和用户信息
-                    Task {
-                        await userService.autoRefreshOnAppLaunch()
-                    }
-                }
         }
         .windowResizability(.contentSize)
-
-    }
-
-    /// 配置窗口样式
-    private func configureWindow() {
-        DispatchQueue.main.async {
-            if let window = NSApplication.shared.windows.first {
-                // 隐藏标题栏但保留窗口控制按钮
-                window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
-                window.titlebarAppearsTransparent = true
-                window.titleVisibility = .hidden
-                window.isMovableByWindowBackground = false
-                window.title = ""
-
-                // 确保标题栏完全透明
-                if let titlebarView = window.standardWindowButton(.closeButton)?.superview {
-                    titlebarView.wantsLayer = true
-                    titlebarView.layer?.backgroundColor = NSColor.clear.cgColor
-                }
-            }
+        .windowToolbarStyle(.unifiedCompact)
+        .commands {
+            // 禁用"新建窗口"菜单项
+            CommandGroup(replacing: .newItem) { }
         }
+
     }
 }
 

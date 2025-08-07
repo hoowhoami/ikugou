@@ -25,7 +25,6 @@ extension APIResponse: Decodable {
             let container = try decoder.singleValueContainer()
             self.wrappedValue = try container.decode(T.self)
         } catch {
-            print("⚠️ API响应解码失败，字段将为nil: \(error)")
             self.wrappedValue = nil
         }
     }
@@ -42,8 +41,9 @@ extension APIResponse: Encodable where T: Encodable {
 
 /// 创建安全的模型结构体的便捷宏
 /// 使用方法: @SafeDecodable struct MyModel { ... }
-@attached(member, names: named(init))
-public macro SafeDecodable() = #externalMacro(module: "SafeDecodingMacros", type: "SafeDecodableMacro")
+// 注意: 需要额外的宏实现包才能使用
+// @attached(member, names: named(init))
+// public macro SafeDecodable() = #externalMacro(module: "SafeDecodingMacros", type: "SafeDecodableMacro")
 
 // MARK: - 最佳实践：优化的 KeyedDecodingContainer 扩展
 
@@ -120,12 +120,12 @@ extension KeyedDecodingContainer {
     }
     
     /// 尝试解码字典，失败时返回空字典
-    func decodeSafe<K: Codable & Hashable, V: Codable>(_ type: [K: V].Type, forKey key: Key) -> [K: V] {
+    func decodeSafe<DictKey: Codable & Hashable, DictValue: Codable>(_ type: [DictKey: DictValue].Type, forKey key: Key) -> [DictKey: DictValue] {
         return safeDecode(type, forKey: key, default: [:])
     }
     
     /// 尝试解码可选字典，失败时返回nil
-    func decodeOptionalSafe<K: Codable & Hashable, V: Codable>(_ type: [K: V].Type, forKey key: Key) -> [K: V]? {
+    func decodeOptionalSafe<DictKey: Codable & Hashable, DictValue: Codable>(_ type: [DictKey: DictValue].Type, forKey key: Key) -> [DictKey: DictValue]? {
         return safeDecodeOptional(type, forKey: key)
     }
 }
@@ -144,7 +144,6 @@ extension AutoSafeDecodable {
         do {
             return try JSONDecoder().decode(Self.self, from: data)
         } catch {
-            print("⚠️ 安全解码失败，尝试使用容错模式: \(error)")
             // 这里可以实现更复杂的容错逻辑
             return nil
         }
@@ -178,7 +177,6 @@ extension LenientDecodable {
         do {
             return try JSONDecoder().decode(Self.self, from: data)
         } catch {
-            print("⚠️ 解码失败，使用默认值: \(error)")
             return Self()
         }
     }

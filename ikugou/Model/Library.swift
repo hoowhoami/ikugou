@@ -7,6 +7,56 @@
 
 import Foundation
 
+// MARK: - 音乐库数据分类枚举
+
+/// 音乐库内容类型
+enum LibraryContentType: CaseIterable {
+    case userCreatedPlaylists   // 我创建的歌单
+    case collectedPlaylists     // 我收藏的歌单
+    case collectedAlbums       // 我收藏的专辑
+    
+    var displayName: String {
+        switch self {
+        case .userCreatedPlaylists:
+            return "我创建的歌单"
+        case .collectedPlaylists:
+            return "我收藏的歌单"
+        case .collectedAlbums:
+            return "我收藏的专辑"
+        }
+    }
+}
+
+/// 通用播放列表过滤器
+struct PlaylistFilter {
+    let contentType: LibraryContentType
+    let currentUserId: Int?
+    
+    /// 判断播放列表是否属于指定类型
+    func matches(_ playlist: UserPlaylistResponse.UserPlaylist) -> Bool {
+        switch contentType {
+        case .userCreatedPlaylists:
+            // 我创建的歌单 = 创建者是我
+            return playlist.list_create_userid == currentUserId
+            
+        case .collectedPlaylists:
+            // 我收藏的歌单 = 创建者不是我 且 没有authors字段（不是专辑）
+            return playlist.list_create_userid != currentUserId && !hasAuthors(playlist)
+            
+        case .collectedAlbums:
+            // 我收藏的专辑 = 创建者不是我 且 有authors字段（是专辑）
+            return playlist.list_create_userid != currentUserId && hasAuthors(playlist)
+        }
+    }
+    
+    /// 检查播放列表是否有authors字段（判断是否为专辑）
+    private func hasAuthors(_ playlist: UserPlaylistResponse.UserPlaylist) -> Bool {
+        // 这里需要根据实际数据结构判断，暂时用tags字段作为判断条件
+        // 如果有专门的authors字段，应该使用那个字段
+        return playlist.tags?.contains("专辑") == true || playlist.type == 2
+    }
+}
+
 // MARK: - 听歌历史相关数据模型
 
 /// 听歌历史响应模型
@@ -261,7 +311,7 @@ struct PlaylistDetailInfo: Codable {
     let is_drop: Int?
     let list_create_userid: Int?
     let is_publish: Int?
-    let musiclib_tags: [String]?
+    let musiclib_tags: [MusicLibTag]?
     let pub_type: Int?
     let is_featured: Int?
     let publish_date: String?
@@ -272,6 +322,7 @@ struct PlaylistDetailInfo: Codable {
     let list_create_listid: Int?
     let radio_id: Int?
     let source: Int?
+    let sound: PlaylistSound?
     let listid: Int?
     let is_def: Int?
     let parent_global_collection_id: String?
@@ -298,6 +349,71 @@ struct PlaylistDetailInfo: Codable {
     let global_collection_id: String?
     let heat: Int?
     let list_create_gid: String?
+    
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 使用安全解码方式
+        self.tags = c[safe: .tags]
+        self.status = c[safe: .status]
+        self.create_user_pic = c[safe: .create_user_pic]
+        self.is_pri = c[safe: .is_pri]
+        self.pub_new = c[safe: .pub_new]
+        self.is_drop = c[safe: .is_drop]
+        self.list_create_userid = c[safe: .list_create_userid]
+        self.is_publish = c[safe: .is_publish]
+        self.musiclib_tags = c[safe: .musiclib_tags]
+        self.pub_type = c[safe: .pub_type]
+        self.is_featured = c[safe: .is_featured]
+        self.publish_date = c[safe: .publish_date]
+        self.collect_total = c[safe: .collect_total]
+        self.list_ver = c[safe: .list_ver]
+        self.intro = c[safe: .intro]
+        self.type = c[safe: .type]
+        self.list_create_listid = c[safe: .list_create_listid]
+        self.radio_id = c[safe: .radio_id]
+        self.source = c[safe: .source]
+        self.sound = c[safe: .sound]
+        self.listid = c[safe: .listid]
+        self.is_def = c[safe: .is_def]
+        self.parent_global_collection_id = c[safe: .parent_global_collection_id]
+        self.sound_quality = c[safe: .sound_quality]
+        self.per_count = c[safe: .per_count]
+        self.plist = c[safe: .plist]
+        self.kq_talent = c[safe: .kq_talent]
+        self.create_time = c[safe: .create_time]
+        self.is_per = c[safe: .is_per]
+        self.is_edit = c[safe: .is_edit]
+        self.update_time = c[safe: .update_time]
+        self.code = c[safe: .code]
+        self.count = c[safe: .count]
+        self.sort = c[safe: .sort]
+        self.is_mine = c[safe: .is_mine]
+        self.musiclib_id = c[safe: .musiclib_id]
+        self.per_num = c[safe: .per_num]
+        self.create_user_gender = c[safe: .create_user_gender]
+        self.number = c[safe: .number]
+        self.pic = c[safe: .pic]
+        self.list_create_username = c[safe: .list_create_username]
+        self.name = c[safe: .name]
+        self.is_custom_pic = c[safe: .is_custom_pic]
+        self.global_collection_id = c[safe: .global_collection_id]
+        self.heat = c[safe: .heat]
+        self.list_create_gid = c[safe: .list_create_gid]
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case tags, status, create_user_pic, is_pri, pub_new, is_drop
+        case list_create_userid, is_publish, musiclib_tags, pub_type
+        case is_featured, publish_date, collect_total, list_ver, intro
+        case type, list_create_listid, radio_id, source, sound, listid
+        case is_def, parent_global_collection_id, sound_quality
+        case per_count, plist, kq_talent, create_time, is_per, is_edit
+        case update_time, code, count, sort, is_mine, musiclib_id
+        case per_num, create_user_gender, number, pic
+        case list_create_username, name, is_custom_pic
+        case global_collection_id, heat, list_create_gid
+    }
     
     // 计算属性，便于访问创建者信息
     var creator: String? {

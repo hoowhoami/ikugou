@@ -11,7 +11,7 @@ import SwiftUI
 enum NavigationItemType: String, CaseIterable, Identifiable {
     case home = "首页"
     case discover = "发现"
-    case library = "音乐库"
+    case library = "乐库"
     case userProfile = "用户详情"
     
     var id: String { rawValue }

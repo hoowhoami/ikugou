@@ -42,6 +42,22 @@ class Player {
     var playlist: [Song] = []
     /// 当前播放索引
     var currentIndex: Int = 0
+    /// 播放错误信息
+    var errorMessage: String?
+    /// 是否显示错误
+    var hasError: Bool = false
     
     init() {}
+    
+    /// 设置错误信息
+    func setError(_ message: String) {
+        errorMessage = message
+        hasError = true
+    }
+    
+    /// 清除错误信息
+    func clearError() {
+        errorMessage = nil
+        hasError = false
+    }
 }

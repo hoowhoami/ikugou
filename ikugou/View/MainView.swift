@@ -25,7 +25,7 @@ struct MainView: View {
                 // 右侧主内容区域
                 VStack(spacing: 0) {
                     // 主内容区域
-                    ContentArea(selectedItem: selectedItem)
+                    ContentView(selectedItem: selectedItem)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(NSColor.windowBackgroundColor))
 

@@ -33,7 +33,7 @@ struct SidebarView: View {
                                 image
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                            case .failure(let error):
+                            case .failure(_):
                                 // 图片加载失败时显示默认图标
                                 Image(systemName: "person.circle.fill")
                                     .foregroundColor(.secondary)
@@ -58,16 +58,17 @@ struct SidebarView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         if userService.isLoggedIn {
                             Text(userService.currentUser?.username ?? "用户")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.primary)
-
-                            Image(userService.isVipUser ? "vip-card-open" : "vip-card-close")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 16, height: 16)
+                            if userService.isVipUser {
+                                Image("vip-open")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 25, height: 25)
+                            }
                         } else {
                             Text("点击登录")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.accentColor)
                         }
                     }
@@ -98,7 +99,7 @@ struct SidebarView: View {
                 )
 
                 SidebarNavigationItem(
-                    title: "音乐库",
+                    title: "乐库",
                     icon: "music.note.list",
                     isSelected: selectedItem == .library,
                     action: { selectedItem = .library }

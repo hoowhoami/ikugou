@@ -8,46 +8,26 @@ import SwiftUI
 
 /// 音质选项枚举
 enum AudioQuality: String, CaseIterable {
-    case low = "128"           // 128码率 MP3
-    case standard = "320"      // 320码率 MP3
-    case flac = "flac"         // FLAC格式
-    case high = "high"         // 无损格式
-    case viperAtmos = "viper_atmos"     // 蝰蛇全景声
-    case viperClear = "viper_clear"     // 蝰蛇超清
-    case viperTape = "viper_tape"       // 蝰蛇母带
-    
-    // 魔法音乐效果
-    case piano = "piano"               // 钢琴
-    case acappella = "acappella"       // 人声伴奏
-    case subwoofer = "subwoofer"       // 骨笛
-    case ancient = "ancient"           // 尤克里里
-    case surnay = "surnay"             // 唢呐
-    case dj = "dj"                     // DJ
+    case normal = "normal_1"        // 普通音质 - 128Kbps 接口自动处理无需显示指定
+    case high = "normal_2"         // 高品音质 - 320Kbps+ 接口自动处理无需显示指定
+    case lossless = "flac"     // 无损音质 - FLAC
+    case hires = "high"        // Hi-Res音质 - 高品质
     
     var displayName: String {
         switch self {
-        case .low: return "标准音质 (128k)"
-        case .standard: return "高音质 (320k)"
-        case .flac: return "无损音质 (FLAC)"
-        case .high: return "高保真音质"
-        case .viperAtmos: return "蝰蛇全景声"
-        case .viperClear: return "蝰蛇超清"
-        case .viperTape: return "蝰蛇母带"
-        case .piano: return "魔法音乐 - 钢琴"
-        case .acappella: return "魔法音乐 - 人声伴奏"
-        case .subwoofer: return "魔法音乐 - 骨笛"
-        case .ancient: return "魔法音乐 - 尤克里里"
-        case .surnay: return "魔法音乐 - 唢呐"
-        case .dj: return "魔法音乐 - DJ"
+        case .normal: return "普通音质 - 128Kbps"
+        case .high: return "高品音质 - 320Kbps"
+        case .lossless: return "无损音质 - 1104kbps"
+        case .hires: return "Hi-Res音质"
         }
     }
     
-    var isSpecialEffect: Bool {
+    var description: String {
         switch self {
-        case .piano, .acappella, .subwoofer, .ancient, .surnay, .dj:
-            return true
-        default:
-            return false
+        case .normal: return "标准音质，适合日常播放"
+        case .high: return "高品质音频，音质更佳"
+        case .lossless: return "无损压缩，原汁原味"
+        case .hires: return "高解析度音频，顶级体验"
         }
     }
 }

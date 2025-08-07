@@ -1,5 +1,5 @@
 //
-//  ContentArea.swift
+//  ContentView.swift
 //  ikugou
 //
 //  Created on 2025/8/4.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentArea: View {
+struct ContentView: View {
     let selectedItem: NavigationItemType
     
     var body: some View {
@@ -29,5 +29,5 @@ struct ContentArea: View {
 }
 
 #Preview {
-    ContentArea(selectedItem: .home)
+    ContentView(selectedItem: .home)
 }
