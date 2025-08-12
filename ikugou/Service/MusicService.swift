@@ -8,8 +8,7 @@
 import SwiftUI
 
 /// 音乐服务 - 处理歌曲URL获取和网络请求
-@Observable
-class MusicService {
+class MusicService: ObservableObject {
     static let shared = MusicService()
     
     /// URL缓存，避免重复请求

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 
 /// 网络错误类型
@@ -40,8 +41,7 @@ struct UserAuth {
 }
 
 /// 网络服务
-@Observable
-class NetworkService {
+class NetworkService: ObservableObject {
     static let shared = NetworkService()
     
     /// 基础URL
@@ -50,7 +50,7 @@ class NetworkService {
     }
     
     /// 用户认证信息
-    var userAuth: UserAuth?
+    @Published var userAuth: UserAuth?
     
     /// URLSession
     var session: URLSession!

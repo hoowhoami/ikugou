@@ -13,7 +13,7 @@ struct SidebarView: View {
     @State private var showSettings = false
     @State private var showLoginSheet = false
 
-    @Environment(UserService.self) private var userService
+    @EnvironmentObject private var userService: UserService
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

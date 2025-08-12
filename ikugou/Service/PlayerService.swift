@@ -5,16 +5,15 @@
 //  Created on 2025/8/5.
 //
 import SwiftUI
-import AudioToolbox
 import AVFoundation
 
 /// 播放器服务，处理所有播放器相关的业务逻辑
-@Observable
-class PlayerService {
+class PlayerService: ObservableObject {
     static let shared = PlayerService()
     
     /// 播放器状态（内部使用）
-    private let player = Player()
+    @Published
+    private var player = Player()
     
     /// 当前正在播放的AVPlayer
     private var audioPlayer: AVPlayer?

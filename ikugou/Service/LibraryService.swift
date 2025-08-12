@@ -8,32 +8,37 @@ import SwiftUI
 import Foundation
 
 /// 音乐库服务 - 负责音乐库相关的所有业务逻辑
-@Observable
-class LibraryService {
+class LibraryService: ObservableObject {
     static let shared = LibraryService()
     private let userService = UserService.shared
     
     // MARK: - 我的歌单相关 (重构后的通用方法)
     
     /// 用户创建的歌单列表
+    @Published
     var userCreatedPlaylists: [UserPlaylistResponse.UserPlaylist] = []
     
     /// 收藏的歌单列表  
+    @Published
     var collectedPlaylists: [UserPlaylistResponse.UserPlaylist] = []
     
     /// 收藏的专辑列表
+    @Published
     var collectedAlbums: [UserPlaylistResponse.UserPlaylist] = []
     
     /// 原始歌单数据（用于分类）
     private var rawPlaylistData: [UserPlaylistResponse.UserPlaylist] = []
     
     /// 我的歌单加载状态
+    @Published
     var isLoadingMyPlaylists = false
     
     /// 我的歌单错误信息
+    @Published
     var myPlaylistsError: String?
     
     /// 存储"我喜欢"歌单的ID
+    @Published
     var likedPlaylistId: String?
     
     private init() {}

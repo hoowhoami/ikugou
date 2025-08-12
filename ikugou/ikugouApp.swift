@@ -27,12 +27,12 @@ struct ikugouApp: App {
     var body: some Scene {
         Window("ikugou", id: "main") {
             MainView()
-                .environment(playerService)
-                .environment(appSetting)
-                .environment(userService)
+                .environmentObject(playerService)
+                .environmentObject(appSetting)
+                .environmentObject(userService)
         }
         .windowResizability(.contentSize)
-        .windowToolbarStyle(.unifiedCompact)
+        .windowToolbarStyle(.unified)
         .commands {
             // 禁用"新建窗口"菜单项
             CommandGroup(replacing: .newItem) { }
@@ -45,7 +45,7 @@ struct ikugouApp: App {
 #Preview {
     // 预览 MainView 并手动注入环境
     MainView()
-        .environment(PlayerService.shared)
-        .environment(AppSetting.shared)
-        .environment(UserService.shared)
+        .environmentObject(PlayerService.shared)
+        .environmentObject(AppSetting.shared)
+        .environmentObject(UserService.shared)
 }

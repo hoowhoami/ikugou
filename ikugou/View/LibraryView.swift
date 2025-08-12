@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @Environment(UserService.self) private var userService
+    @EnvironmentObject private var userService: UserService
     @State private var showLoginSheet = false
     @State private var selectedSection: LibrarySection = .myCreatedPlaylists
     
@@ -416,7 +416,7 @@ struct PlaylistDetailView: View {
     @State private var errorMessage: String?
     @State private var isSelectionMode = false
     @State private var selectedTracks: Set<UUID> = []
-    @Environment(PlayerService.self) private var playerService
+    @EnvironmentObject private var playerService: PlayerService
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -849,7 +849,7 @@ struct PlaylistTrackRow: View {
     let onSelectionToggle: ((UUID) -> Void)?
     let onPlayTapped: (() -> Void)?
     @State private var showingMoreOptions = false
-    @Environment(PlayerService.self) private var playerService
+    @EnvironmentObject private var playerService: PlayerService
     
     init(track: PlaylistTrackInfo, index: Int, isSelectionMode: Bool = false, isSelected: Bool = false, onSelectionToggle: ((UUID) -> Void)? = nil, onPlayTapped: (() -> Void)? = nil) {
         self.track = track

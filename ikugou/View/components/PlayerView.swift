@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlayerView: View {
     /// 全局播放管理器
-    @Environment(PlayerService.self) private var playerService
+    @EnvironmentObject private var playerService: PlayerService
 
     // UI 状态
     @State private var showVolumeSlider = false
@@ -805,7 +805,7 @@ struct PlaylistItemView: View {
 // 音质选择弹出窗口
 struct QualitySelectionPopover: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(PlayerService.self) private var playerService
+    @EnvironmentObject private var playerService: PlayerService
     @State private var selectedQuality: AudioQuality = .normal
     @State private var compatibilityMode: Bool = true
     
@@ -935,5 +935,5 @@ struct PlayerGeneralSettingsPopover: View {
 
 #Preview {
     PlayerView()
-        .environment(PlayerService.shared)
+        .environmentObject(PlayerService.shared)
 }

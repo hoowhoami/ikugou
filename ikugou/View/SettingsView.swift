@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(AppSetting.self) private var appSettings
+    @EnvironmentObject private var appSettings: AppSetting
     
     @State private var selectedTab: SettingsTab = .appearance
     @State private var tempApiURL: String = ""
@@ -80,7 +80,7 @@ enum SettingsTab: String, CaseIterable {
 
 // 外观设置视图
 struct AppearanceSettingsView: View {
-    @Environment(AppSetting.self) private var appSettings
+    @EnvironmentObject private var appSettings: AppSetting
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -246,7 +246,7 @@ struct AppearanceSettingsView: View {
 
 // API设置视图
 struct APISettingsView: View {
-    @Environment(AppSetting.self) private var appSettings
+    @EnvironmentObject private var appSettings: AppSetting
     @Binding var tempApiURL: String
     @State private var showResetAlert = false
     
@@ -350,7 +350,7 @@ struct AboutSettingsView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     InfoRow(label: "框架", value: "SwiftUI")
-                    InfoRow(label: "平台", value: "macOS 14.0+")
+                    InfoRow(label: "平台", value: "macOS 13.0+")
                     InfoRow(label: "架构", value: "Apple Silicon & Intel")
                 }
             }
@@ -382,5 +382,5 @@ struct InfoRow: View {
 
 #Preview {
     SettingsView()
-        .environment(AppSetting.shared)
+        .environmentObject(AppSetting.shared)
 }

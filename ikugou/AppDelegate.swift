@@ -14,7 +14,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 获取第一个窗口作为主窗口
         if let window = NSApplication.shared.windows.first {
             mainWindow = window
-            configureWindow(window)
             // 设置窗口代理以处理关闭事件
             window.delegate = self
         }
@@ -39,23 +38,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func configureWindow(_ window: NSWindow) {
-        // 保持原生窗口样式，但隐藏标题并使标题栏透明
-        window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
-        window.titlebarAppearsTransparent = true
-        window.titleVisibility = .hidden
+        // 配置窗口样式
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.titlebarAppearsTransparent = false
+        window.titleVisibility = .visible
         window.isMovableByWindowBackground = false
         window.backgroundColor = NSColor.windowBackgroundColor
-
-        // 隐藏原生标题栏的标题文本
+        window.toolbarStyle = .unified
+        
+        // 设置窗口标题
         window.title = ""
-
-        // 确保标题栏完全透明
-        if let titlebarView = window.standardWindowButton(.closeButton)?.superview {
-            titlebarView.wantsLayer = true
-            titlebarView.layer?.backgroundColor = NSColor.clear.cgColor
-        }
-
-        // window.setContentSize(NSSize(width: 1024, height: 600))
     }
 }
 

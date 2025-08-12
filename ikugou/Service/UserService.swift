@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// 用户信息服务（负责用户状态管理和API交互）
-@Observable
-class UserService {
+class UserService: ObservableObject {
     static let shared = UserService()
     private let networkService = NetworkService.shared
     
     // MARK: - 用户状态
     
     /// 当前用户信息
+    @Published
     var currentUser: User? {
         didSet {
             if let user = currentUser {
@@ -34,6 +35,7 @@ class UserService {
     }
     
     /// 用户VIP信息
+    @Published
     var vipInfo: UserVipResponse.UserVipData? {
         didSet {
             // 保存VIP信息到本地存储
@@ -48,6 +50,7 @@ class UserService {
     }
     
     /// 用户详细信息
+    @Published
     var userDetail: UserDetailResponse.UserDetailData? {
         didSet {
             // 保存用户详细信息到本地存储

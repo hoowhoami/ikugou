@@ -24,20 +24,19 @@ enum AppearanceMode: String, CaseIterable {
 }
 
 /// 应用设置管理器（仅负责状态管理，业务逻辑由AppSettingService处理）
-@Observable
-class AppSetting {
+class AppSetting: ObservableObject {
     static let shared = AppSetting()
     private let service = AppSettingService.shared
     
     /// 外观模式
-    var appearanceMode: AppearanceMode {
+    @Published var appearanceMode: AppearanceMode {
         didSet {
             service.saveAppearanceMode(appearanceMode)
         }
     }
     
     /// API 基础URL
-    var apiBaseURL: String {
+    @Published var apiBaseURL: String {
         didSet {
             service.saveAPIBaseURL(apiBaseURL)
         }

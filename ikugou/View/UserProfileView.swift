@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    @Environment(UserService.self) private var userService
+    @EnvironmentObject private var userService: UserService
     @State private var showLogoutConfirmation = false
     @State private var isRefreshing = false
     
@@ -229,5 +229,5 @@ struct InfoCard: View {
 
 #Preview {
     UserProfileView()
-        .environment(UserService.shared)
+        .environmentObject(UserService.shared)
 }

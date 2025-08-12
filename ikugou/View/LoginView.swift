@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(UserService.self) private var userService
+    @EnvironmentObject private var userService: UserService
     
     // 登录方式
     @State private var loginType: LoginType = .mobile
@@ -38,25 +38,6 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                // 关闭按钮
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.secondary)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color(NSColor.controlBackgroundColor))
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 16)
-                .padding(.trailing, 16)
                 
                 // 标题
                 VStack(spacing: 8) {
@@ -119,6 +100,9 @@ struct LoginView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color(NSColor.controlBackgroundColor))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                     )
             }
@@ -135,6 +119,9 @@ struct LoginView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color(NSColor.controlBackgroundColor))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
                                 .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                         )
                     
@@ -256,10 +243,10 @@ struct LoginView: View {
         .onDisappear {
             stopQRPolling()
         }
-        .onChange(of: loginType) { _, newValue in
-            if newValue == .qrcode && qrCodeURL.isEmpty {
+        .onChange(of: loginType) { newLoginType in
+            if newLoginType == .qrcode && qrCodeURL.isEmpty {
                 generateQRCode()
-            } else if newValue != .qrcode {
+            } else if newLoginType != .qrcode {
                 stopQRPolling()
             }
         }
@@ -485,5 +472,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .environment(UserService.shared)
+        .environmentObject(UserService.shared)
 }
