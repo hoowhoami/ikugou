@@ -23,6 +23,9 @@ struct ikugouApp: App {
     /// 用户服务管理器
     @State private var userService = UserService.shared
     
+    /// 音乐库服务管理器
+    @State private var libraryService = LibraryService.shared
+    
     
     var body: some Scene {
         Window("ikugou", id: "main") {
@@ -30,6 +33,7 @@ struct ikugouApp: App {
                 .environmentObject(playerService)
                 .environmentObject(appSetting)
                 .environmentObject(userService)
+                .environmentObject(libraryService)
         }
         .windowResizability(.contentSize)
         .windowToolbarStyle(.unified)
@@ -48,4 +52,5 @@ struct ikugouApp: App {
         .environmentObject(PlayerService.shared)
         .environmentObject(AppSetting.shared)
         .environmentObject(UserService.shared)
+        .environmentObject(LibraryService.shared)
 }

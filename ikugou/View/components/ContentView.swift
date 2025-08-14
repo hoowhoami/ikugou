@@ -17,10 +17,20 @@ struct ContentView: View {
                 HomeView()
             case .discover:
                 DiscoverView()
-            case .library:
+            case .favoriteMusic, .myCloud, .recentPlay:
                 LibraryView()
             case .userProfile:
                 UserProfileView()
+            case .videos:
+                // TODO: 实现视频页面
+                VStack {
+                    Image(systemName: "play.rectangle.fill")
+                        .font(.system(size: 64))
+                        .foregroundColor(.secondary)
+                    Text("视频功能正在开发中")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

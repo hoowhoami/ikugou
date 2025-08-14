@@ -29,6 +29,13 @@ struct DiscoverView: View {
             }
             .padding(20)
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("RefreshCurrentContent"))) { _ in
+            // 发送刷新完成通知
+            NotificationCenter.default.post(
+                name: NSNotification.Name("RefreshCompleted"),
+                object: nil
+            )
+        }
     }
 }
 

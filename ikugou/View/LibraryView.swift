@@ -418,51 +418,23 @@ struct PlaylistDetailView: View {
     @State private var selectedTracks: Set<UUID> = []
     @EnvironmentObject private var playerService: PlayerService
     
+    init(playlist: UserPlaylistResponse.UserPlaylist, sourceSection: LibrarySection, onBack: @escaping () -> Void) {
+        self.playlist = playlist
+        self.sourceSection = sourceSection
+        self.onBack = onBack
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 返回按钮和标题栏
+            // 标题栏
             HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("返回")
-                            .font(.system(size: 16))
-                    }
-                    .foregroundColor(.accentColor)
-                }
-                .buttonStyle(.plain)
-                
-                Spacer()
-                
                 Text(sourceSection.rawValue)
-                    .font(.title)
-                    .fontWeight(.semibold)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
                 
                 Spacer()
                 
-                // 刷新按钮
-                Button(action: {
-                    if !isRefreshing {
-                        Task {
-                            isRefreshing = true
-                            await loadPlaylistData()
-                            isRefreshing = false
-                        }
-                    }
-                }) {
-                    if isRefreshing {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 16))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .buttonStyle(.plain)
-                .disabled(isRefreshing)
-                .help("刷新歌单")
+                // 移除刷新按钮，使用应用标题栏的刷新功能
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
@@ -508,6 +480,18 @@ struct PlaylistDetailView: View {
         }
         .onAppear {
             Task { await loadPlaylistData() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("RefreshCurrentContent"))) { _ in
+            Task {
+                isRefreshing = true
+                await loadPlaylistData()
+                isRefreshing = false
+                // 发送刷新完成通知
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("RefreshCompleted"),
+                    object: nil
+                )
+            }
         }
     }
     
